@@ -91,7 +91,6 @@ import com.sameerasw.essentials.R
 import com.sameerasw.essentials.domain.registry.FeatureRegistry
 import com.sameerasw.essentials.domain.registry.PermissionRegistry
 import com.sameerasw.essentials.domain.registry.QSTileRegistry
-import com.sameerasw.essentials.ui.activities.PixelSearchbarSettingsActivity
 import com.sameerasw.essentials.ui.activities.WallpaperActivity
 import com.sameerasw.essentials.ui.activities.YourAndroidActivity
 import com.sameerasw.essentials.ui.components.FavoriteCarousel
@@ -1761,12 +1760,7 @@ private fun SearchResultsSection(
                                         feature = feature,
                                         action = {
                                             val intent =
-                                                if (targetFeatureKey == "Pixel Searchbar") {
-                                                    Intent(
-                                                        context,
-                                                        PixelSearchbarSettingsActivity::class.java,
-                                                    )
-                                                } else if (targetFeatureKey == "LiveWallpaper" || targetFeatureKey == "Daily Wallpaper") {
+                                                if (targetFeatureKey == "LiveWallpaper" || targetFeatureKey == "Daily Wallpaper") {
                                                     Intent(
                                                         context,
                                                         WallpaperActivity::class.java,
@@ -1797,12 +1791,7 @@ private fun SearchResultsSection(
                                     )
                                 } else {
                                     val intent =
-                                        if (result.featureKey == "Pixel Searchbar") {
-                                            Intent(
-                                                context,
-                                                PixelSearchbarSettingsActivity::class.java,
-                                            )
-                                        } else if (result.featureKey == "LiveWallpaper" || result.featureKey == "Daily Wallpaper") {
+                                        if (result.featureKey == "LiveWallpaper" || result.featureKey == "Daily Wallpaper") {
                                             Intent(
                                                 context,
                                                 WallpaperActivity::class.java,

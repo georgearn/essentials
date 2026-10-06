@@ -43,7 +43,6 @@ import com.sameerasw.essentials.domain.model.ProgressNotificationData
 import com.sameerasw.essentials.domain.model.RippleConfig
 import com.sameerasw.essentials.services.receivers.FlashlightActionReceiver
 import com.sameerasw.essentials.services.tiles.ScreenOffAccessibilityService
-import com.sameerasw.essentials.services.widgets.PixelSearchbarWidget
 import com.sameerasw.essentials.utils.AppColorUtil
 import com.sameerasw.essentials.utils.AppUtil
 import com.sameerasw.essentials.utils.HapticUtil
@@ -873,48 +872,6 @@ class NotificationListener : NotificationListenerService() {
                     artist != lastState.artist
 
                 // Extract and save album art
-                if (mediaContentChanged) {
-                    val artwork =
-                        metadata?.getBitmap(android.media.MediaMetadata.METADATA_KEY_ALBUM_ART)
-                            ?: metadata?.getBitmap(android.media.MediaMetadata.METADATA_KEY_ART)
-                            ?: metadata?.getBitmap(android.media.MediaMetadata.METADATA_KEY_DISPLAY_ICON)
-
-                    val filesDirFile = File(filesDir, "music_artwork.png")
-
-                    // Update settings and trigger the Glance widget only for new media content.
-                    val settingsRepo = SettingsRepository(this)
-                    settingsRepo.setPixelSearchbarMusicTitle(title)
-                    settingsRepo.setPixelSearchbarMusicArtist(artist)
-                    settingsRepo.setPixelSearchbarMusicPackage(sbn.packageName)
-                    settingsRepo.incrementPixelSearchbarWidgetRevision()
-
-                    kotlinx.coroutines.MainScope().launch {
-                        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                            if (artwork != null) {
-                                try {
-                                    val tmpFile = File.createTempFile("music_artwork", ".tmp", filesDir)
-                                    FileOutputStream(tmpFile).use { out ->
-                                        artwork.compress(Bitmap.CompressFormat.PNG, 100, out)
-                                    }
-                                    if (!tmpFile.renameTo(filesDirFile)) tmpFile.delete()
-                                } catch (_: Exception) {
-                                }
-                            } else if (filesDirFile.exists()) {
-                                filesDirFile.delete()
-                            }
-                        }
-                        try {
-                            val managerGlance =
-                                androidx.glance.appwidget.GlanceAppWidgetManager(this@NotificationListener)
-                            val widgetGlance = PixelSearchbarWidget()
-                            val glanceIds = managerGlance.getGlanceIds(PixelSearchbarWidget::class.java)
-                            for (glanceId in glanceIds) {
-                                widgetGlance.update(this@NotificationListener, glanceId)
-                            }
-                        } catch (_: Exception) {
-                        }
-                    }
-                }
 
                 var eventType: String? = null
 

@@ -44,7 +44,6 @@ class SettingsRepository(
     init {
         migrateUsageAccessKey()
         migrateRemapStringToAction()
-        migratePixelSearchbarType()
     }
 
     private fun migrateUsageAccessKey() {
@@ -91,16 +90,6 @@ class SettingsRepository(
         }
 
         putBoolean(KEY_BUTTON_REMAP_MIGRATION_DONE, true)
-    }
-
-    private fun migratePixelSearchbarType() {
-        if (!prefs.getBoolean(KEY_PIXEL_SEARCHBAR_MIGRATED_V1, false)) {
-            putBoolean(KEY_PIXEL_SEARCHBAR_MIGRATED_V1, true)
-            val raw = prefs.getString(KEY_PIXEL_SEARCHBAR_TYPE, null)
-            if (raw == null || raw == "empty") {
-                putString(KEY_PIXEL_SEARCHBAR_TYPE, "searchbar")
-            }
-        }
     }
 
     fun getRemapAction(key: String): Action? {
@@ -391,15 +380,6 @@ class SettingsRepository(
         const val KEY_AOD_WALLPAPER_DISABLE_ON_DND = "aod_wallpaper_disable_on_dnd"
         const val KEY_AOD_WALLPAPER_KEEP_ON_MEDIA = "aod_wallpaper_keep_on_media"
         const val KEY_AOD_WALLPAPER_MEDIA_EXCLUDED_APPS = "aod_wallpaper_media_excluded_apps"
-        const val KEY_PIXEL_SEARCH_RESULT_APPS = "pixel_search_result_apps"
-        const val KEY_PIXEL_SEARCH_RESULT_CONTACTS = "pixel_search_result_contacts"
-        const val KEY_PIXEL_SEARCH_RESULT_SETTINGS = "pixel_search_result_settings"
-        const val KEY_PIXEL_SEARCH_RESULT_SHORTCUTS = "pixel_search_result_shortcuts"
-        const val KEY_PIXEL_SEARCH_RESULT_WEB = "pixel_search_result_web"
-        const val KEY_PIXEL_SEARCH_RESULT_MEDIA = "pixel_search_result_media"
-        const val KEY_PIXEL_SEARCH_RESULT_FILES = "pixel_search_result_files"
-        const val KEY_PIXEL_SEARCH_BUBBLES_WEB = "pixel_search_bubbles_web"
-        const val KEY_PIXEL_SEARCH_ENGINE = "pixel_search_engine"
         const val KEY_AUTO_ACCESSIBILITY_ENABLED = "auto_accessibility_enabled"
         const val KEY_USE_BLUR = "use_blur"
         const val KEY_USE_RIPPLE = "use_ripple"
@@ -677,22 +657,6 @@ class SettingsRepository(
         const val KEY_PREFER_GPU_COMPOSING = "prefer_gpu_composing"
         const val KEY_TRANSPARENT_NAVIGATION_BAR = "transparent_navigation_bar"
         const val KEY_STANDBY_APPS = "standby_apps"
-        const val KEY_PIXEL_SEARCHBAR = "pixel_searchbar"
-        const val KEY_PIXEL_SEARCHBAR_TYPE = "pixel_searchbar_type"
-        const val KEY_PIXEL_SEARCHBAR_MIGRATED_V1 = "pixel_searchbar_migrated_v1"
-        const val KEY_PIXEL_SEARCHBAR_DATE_FORMAT = "pixel_searchbar_date_format"
-        const val KEY_PIXEL_SEARCHBAR_BACKGROUND_PILL = "pixel_searchbar_background_pill"
-        const val KEY_PIXEL_SEARCHBAR_WIDGET_ID = "pixel_searchbar_widget_id"
-        const val KEY_PIXEL_SEARCHBAR_WIDGET_PROVIDER = "pixel_searchbar_widget_provider"
-        const val KEY_PIXEL_SEARCHBAR_SCRAPED_LINE1 = "pixel_searchbar_scraped_line1"
-        const val KEY_PIXEL_SEARCHBAR_SCRAPED_LINE2 = "pixel_searchbar_scraped_line2"
-        const val KEY_PIXEL_SEARCHBAR_WIDGET_PADDING_H = "pixel_searchbar_widget_padding_h"
-        const val KEY_PIXEL_SEARCHBAR_WIDGET_PADDING_V = "pixel_searchbar_widget_padding_v"
-        const val KEY_PIXEL_SEARCHBAR_TAP_ACTION_ENABLED = "pixel_searchbar_tap_action_enabled"
-        const val KEY_PIXEL_SEARCHBAR_WIDGET_REVISION = "pixel_searchbar_widget_revision"
-        const val KEY_PIXEL_SEARCHBAR_MUSIC_TITLE = "pixel_searchbar_music_title"
-        const val KEY_PIXEL_SEARCHBAR_MUSIC_ARTIST = "pixel_searchbar_music_artist"
-        const val KEY_PIXEL_SEARCHBAR_MUSIC_PACKAGE = "pixel_searchbar_music_package"
 
         const val KEY_LOCK_SCREEN_CLOCK_WEIGHT = "lock_screen_clock_weight"
         const val KEY_LOCK_SCREEN_CLOCK_WIDTH = "lock_screen_clock_width"
@@ -2093,196 +2057,86 @@ class SettingsRepository(
     fun setShizukuAuthToken(token: String) = putString(KEY_SHIZUKU_AUTH_TOKEN, token)
 
     /**
-     * Executes the get pixel searchbar type operation.
-     * @return The resulting String data.
-     */
-    fun getPixelSearchbarType(): String = prefs.getString(KEY_PIXEL_SEARCHBAR_TYPE, "searchbar") ?: "searchbar"
 
     /**
      * Executes the set pixel searchbar type operation.
      *
-     * @param type [String] Target type.
-     */
-    fun setPixelSearchbarType(type: String) = putString(KEY_PIXEL_SEARCHBAR_TYPE, type)
 
     /**
-     * Executes the get pixel searchbar date format operation.
-     * @return The resulting String data.
-     */
-    fun getPixelSearchbarDateFormat(): String = prefs.getString(KEY_PIXEL_SEARCHBAR_DATE_FORMAT, "EEEE, MMMM d") ?: "EEEE, MMMM d"
 
     /**
      * Executes the set pixel searchbar date format operation.
      *
-     * @param format [String] Target format.
-     */
-    fun setPixelSearchbarDateFormat(format: String) = putString(KEY_PIXEL_SEARCHBAR_DATE_FORMAT, format)
 
     /**
-     * Executes the get pixel searchbar background pill operation.
-     * @return The resulting Boolean data.
-     */
-    fun getPixelSearchbarBackgroundPill(): Boolean = prefs.getBoolean(KEY_PIXEL_SEARCHBAR_BACKGROUND_PILL, false)
 
     /**
      * Executes the set pixel searchbar background pill operation.
      *
-     * @param enabled [Boolean] Target enabled.
-     */
-    fun setPixelSearchbarBackgroundPill(enabled: Boolean) = putBoolean(KEY_PIXEL_SEARCHBAR_BACKGROUND_PILL, enabled)
 
     /**
-     * Executes the get pixel searchbar widget id operation.
-     * @return The resulting Int data.
-     */
-    fun getPixelSearchbarWidgetId(): Int =
-        prefs.getInt(
-            KEY_PIXEL_SEARCHBAR_WIDGET_ID,
-            android.appwidget.AppWidgetManager.INVALID_APPWIDGET_ID,
-        )
 
     /**
      * Executes the set pixel searchbar widget id operation.
      *
-     * @param id [Int] Target id.
-     */
-    fun setPixelSearchbarWidgetId(id: Int) = prefs.edit().putInt(KEY_PIXEL_SEARCHBAR_WIDGET_ID, id).apply()
 
     /**
-     * Executes the get pixel searchbar widget provider operation.
-     * @return The resulting String? data.
-     */
-    fun getPixelSearchbarWidgetProvider(): String? = prefs.getString(KEY_PIXEL_SEARCHBAR_WIDGET_PROVIDER, null)
 
     /**
      * Executes the set pixel searchbar widget provider operation.
      *
-     * @param provider [String?] Target provider.
-     */
-    fun setPixelSearchbarWidgetProvider(provider: String?) =
-        if (provider == null) {
-            prefs.edit().remove(KEY_PIXEL_SEARCHBAR_WIDGET_PROVIDER).apply()
-        } else {
-            putString(KEY_PIXEL_SEARCHBAR_WIDGET_PROVIDER, provider)
-        }
 
     /**
-     * Executes the get pixel searchbar scraped line1 operation.
-     * @return The resulting String data.
-     */
-    fun getPixelSearchbarScrapedLine1(): String = prefs.getString(KEY_PIXEL_SEARCHBAR_SCRAPED_LINE1, "") ?: ""
 
     /**
      * Executes the set pixel searchbar scraped line1 operation.
      *
-     * @param text [String] Target text.
-     */
-    fun setPixelSearchbarScrapedLine1(text: String) = putString(KEY_PIXEL_SEARCHBAR_SCRAPED_LINE1, text)
 
     /**
-     * Executes the get pixel searchbar scraped line2 operation.
-     * @return The resulting String data.
-     */
-    fun getPixelSearchbarScrapedLine2(): String = prefs.getString(KEY_PIXEL_SEARCHBAR_SCRAPED_LINE2, "") ?: ""
 
     /**
      * Executes the set pixel searchbar scraped line2 operation.
      *
-     * @param text [String] Target text.
-     */
-    fun setPixelSearchbarScrapedLine2(text: String) = putString(KEY_PIXEL_SEARCHBAR_SCRAPED_LINE2, text)
 
     /**
-     * Executes the get pixel searchbar widget padding h operation.
-     * @return The resulting Int data.
-     */
-    fun getPixelSearchbarWidgetPaddingH(): Int = prefs.getInt(KEY_PIXEL_SEARCHBAR_WIDGET_PADDING_H, 0)
 
     /**
      * Executes the set pixel searchbar widget padding h operation.
      *
-     * @param value [Int] Target value.
-     */
-    fun setPixelSearchbarWidgetPaddingH(value: Int) = prefs.edit().putInt(KEY_PIXEL_SEARCHBAR_WIDGET_PADDING_H, value).apply()
 
     /**
-     * Executes the get pixel searchbar widget padding v operation.
-     * @return The resulting Int data.
-     */
-    fun getPixelSearchbarWidgetPaddingV(): Int = prefs.getInt(KEY_PIXEL_SEARCHBAR_WIDGET_PADDING_V, 0)
 
     /**
      * Executes the set pixel searchbar widget padding v operation.
      *
-     * @param value [Int] Target value.
-     */
-    fun setPixelSearchbarWidgetPaddingV(value: Int) = prefs.edit().putInt(KEY_PIXEL_SEARCHBAR_WIDGET_PADDING_V, value).apply()
 
     /**
-     * Executes the get pixel searchbar tap action enabled operation.
-     * @return The resulting Boolean data.
-     */
-    fun getPixelSearchbarTapActionEnabled(): Boolean = prefs.getBoolean(KEY_PIXEL_SEARCHBAR_TAP_ACTION_ENABLED, true)
 
     /**
      * Executes the set pixel searchbar tap action enabled operation.
      *
-     * @param enabled [Boolean] Target enabled.
-     */
-    fun setPixelSearchbarTapActionEnabled(enabled: Boolean) = putBoolean(KEY_PIXEL_SEARCHBAR_TAP_ACTION_ENABLED, enabled)
 
     /**
-     * Executes the get pixel searchbar widget revision operation.
-     * @return The resulting Int data.
-     */
-    fun getPixelSearchbarWidgetRevision(): Int = prefs.getInt(KEY_PIXEL_SEARCHBAR_WIDGET_REVISION, 0)
 
     /**
-     * Executes the increment pixel searchbar widget revision operation.
-     */
-    fun incrementPixelSearchbarWidgetRevision() {
-        val current = getPixelSearchbarWidgetRevision()
-        prefs.edit().putInt(KEY_PIXEL_SEARCHBAR_WIDGET_REVISION, current + 1).apply()
-    }
 
     /**
-     * Executes the get pixel searchbar music title operation.
-     * @return The resulting String data.
-     */
-    fun getPixelSearchbarMusicTitle(): String = prefs.getString(KEY_PIXEL_SEARCHBAR_MUSIC_TITLE, "") ?: ""
 
     /**
      * Executes the set pixel searchbar music title operation.
      *
-     * @param value [String] Target value.
-     */
-    fun setPixelSearchbarMusicTitle(value: String) = putString(KEY_PIXEL_SEARCHBAR_MUSIC_TITLE, value)
 
     /**
-     * Executes the get pixel searchbar music artist operation.
-     * @return The resulting String data.
-     */
-    fun getPixelSearchbarMusicArtist(): String = prefs.getString(KEY_PIXEL_SEARCHBAR_MUSIC_ARTIST, "") ?: ""
 
     /**
      * Executes the set pixel searchbar music artist operation.
      *
-     * @param value [String] Target value.
-     */
-    fun setPixelSearchbarMusicArtist(value: String) = putString(KEY_PIXEL_SEARCHBAR_MUSIC_ARTIST, value)
 
     /**
-     * Executes the get pixel searchbar music package operation.
-     * @return The resulting String data.
-     */
-    fun getPixelSearchbarMusicPackage(): String = prefs.getString(KEY_PIXEL_SEARCHBAR_MUSIC_PACKAGE, "") ?: ""
 
     /**
      * Executes the set pixel searchbar music package operation.
      *
-     * @param value [String] Target value.
-     */
-    fun setPixelSearchbarMusicPackage(value: String) = putString(KEY_PIXEL_SEARCHBAR_MUSIC_PACKAGE, value)
 
     /**
      * Executes the get edge lighting sweep selected shapes operation.
@@ -3411,33 +3265,6 @@ class SettingsRepository(
     fun isAodWallpaperKeepOnMediaEnabled(): Boolean = getBoolean(KEY_AOD_WALLPAPER_KEEP_ON_MEDIA, false)
 
     fun setAodWallpaperKeepOnMedia(enabled: Boolean) = putBoolean(KEY_AOD_WALLPAPER_KEEP_ON_MEDIA, enabled)
-
-    fun isPixelSearchResultAppsEnabled(): Boolean = getBoolean(KEY_PIXEL_SEARCH_RESULT_APPS, true)
-    fun setPixelSearchResultAppsEnabled(enabled: Boolean) = putBoolean(KEY_PIXEL_SEARCH_RESULT_APPS, enabled)
-
-    fun isPixelSearchResultContactsEnabled(): Boolean = getBoolean(KEY_PIXEL_SEARCH_RESULT_CONTACTS, true)
-    fun setPixelSearchResultContactsEnabled(enabled: Boolean) = putBoolean(KEY_PIXEL_SEARCH_RESULT_CONTACTS, enabled)
-
-    fun isPixelSearchResultSettingsEnabled(): Boolean = getBoolean(KEY_PIXEL_SEARCH_RESULT_SETTINGS, true)
-    fun setPixelSearchResultSettingsEnabled(enabled: Boolean) = putBoolean(KEY_PIXEL_SEARCH_RESULT_SETTINGS, enabled)
-
-    fun isPixelSearchResultShortcutsEnabled(): Boolean = getBoolean(KEY_PIXEL_SEARCH_RESULT_SHORTCUTS, true)
-    fun setPixelSearchResultShortcutsEnabled(enabled: Boolean) = putBoolean(KEY_PIXEL_SEARCH_RESULT_SHORTCUTS, enabled)
-
-    fun isPixelSearchResultWebEnabled(): Boolean = getBoolean(KEY_PIXEL_SEARCH_RESULT_WEB, true)
-    fun setPixelSearchResultWebEnabled(enabled: Boolean) = putBoolean(KEY_PIXEL_SEARCH_RESULT_WEB, enabled)
-
-    fun isPixelSearchResultMediaEnabled(): Boolean = getBoolean(KEY_PIXEL_SEARCH_RESULT_MEDIA, false)
-    fun setPixelSearchResultMediaEnabled(enabled: Boolean) = putBoolean(KEY_PIXEL_SEARCH_RESULT_MEDIA, enabled)
-
-    fun isPixelSearchResultFilesEnabled(): Boolean = getBoolean(KEY_PIXEL_SEARCH_RESULT_FILES, false)
-    fun setPixelSearchResultFilesEnabled(enabled: Boolean) = putBoolean(KEY_PIXEL_SEARCH_RESULT_FILES, enabled)
-
-    fun isPixelSearchBubblesWebEnabled(): Boolean = getBoolean(KEY_PIXEL_SEARCH_BUBBLES_WEB, false)
-    fun setPixelSearchBubblesWebEnabled(enabled: Boolean) = putBoolean(KEY_PIXEL_SEARCH_BUBBLES_WEB, enabled)
-
-    fun getPixelSearchEngine(): String = getString(KEY_PIXEL_SEARCH_ENGINE, "Google") ?: "Google"
-    fun setPixelSearchEngine(engine: String) = putString(KEY_PIXEL_SEARCH_ENGINE, engine)
 
     fun isBubbleWebFullscreen(): Boolean = getBoolean(KEY_BUBBLE_WEB_FULLSCREEN, false)
     fun setBubbleWebFullscreen(fullscreen: Boolean) = putBoolean(KEY_BUBBLE_WEB_FULLSCREEN, fullscreen)

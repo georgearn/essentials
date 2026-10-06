@@ -380,21 +380,6 @@ class MainViewModel : ViewModel() {
     val isPreferGpuComposingEnabled = mutableStateOf(false)
     val standbyAppsList = mutableStateOf<List<AppStandbyInfo>>(emptyList())
     val isStandbyAppsLoading = mutableStateOf(false)
-    val isPixelSearchbarEnabled = mutableStateOf(false)
-    val pixelSearchbarType = mutableStateOf("empty")
-    val pixelSearchbarDateFormat = mutableStateOf("EEEE, MMMM d")
-    val pixelSearchbarBackgroundPill = mutableStateOf(false)
-    val pixelSearchbarWidgetId =
-        mutableIntStateOf(android.appwidget.AppWidgetManager.INVALID_APPWIDGET_ID)
-    val pixelSearchbarWidgetProvider = mutableStateOf<String?>(null)
-    val pixelSearchbarScrapedLine1 = mutableStateOf("")
-    val pixelSearchbarScrapedLine2 = mutableStateOf("")
-    val pixelSearchbarWidgetPaddingH = mutableIntStateOf(0)
-    val pixelSearchbarWidgetPaddingV = mutableIntStateOf(0)
-    val pixelSearchbarTapActionEnabled = mutableStateOf(true)
-    val pixelSearchbarMusicTitle = mutableStateOf("")
-    val pixelSearchbarMusicArtist = mutableStateOf("")
-    val pixelSearchbarMusicPackage = mutableStateOf("")
     val lockScreenClockId = mutableStateOf<String?>(null)
     val lockScreenClockWeight = mutableIntStateOf(300)
     val lockScreenClockWidth = mutableIntStateOf(116)
@@ -1487,16 +1472,6 @@ class MainViewModel : ViewModel() {
                         }
                     }
 
-                    SettingsRepository.KEY_PIXEL_SEARCHBAR -> {
-                        isPixelSearchbarEnabled.value =
-                            settingsRepository.getBoolean(key)
-                        appContext?.let {
-                            applyPixelSearchbarSetting(
-                                it,
-                                isPixelSearchbarEnabled.value,
-                            )
-                        }
-                    }
                 }
             }
         }
@@ -1759,34 +1734,6 @@ class MainViewModel : ViewModel() {
             settingsRepository.getBoolean(SettingsRepository.KEY_TRANSPARENT_NAVIGATION_BAR, false)
         isPreferGpuComposingEnabled.value =
             settingsRepository.getBoolean(SettingsRepository.KEY_PREFER_GPU_COMPOSING, false)
-        isPixelSearchbarEnabled.value =
-            settingsRepository.getBoolean(SettingsRepository.KEY_PIXEL_SEARCHBAR, false)
-        pixelSearchbarType.value =
-            settingsRepository.getPixelSearchbarType()
-        pixelSearchbarDateFormat.value =
-            settingsRepository.getPixelSearchbarDateFormat()
-        pixelSearchbarBackgroundPill.value =
-            settingsRepository.getPixelSearchbarBackgroundPill()
-        pixelSearchbarWidgetId.intValue =
-            settingsRepository.getPixelSearchbarWidgetId()
-        pixelSearchbarWidgetProvider.value =
-            settingsRepository.getPixelSearchbarWidgetProvider()
-        pixelSearchbarScrapedLine1.value =
-            settingsRepository.getPixelSearchbarScrapedLine1()
-        pixelSearchbarScrapedLine2.value =
-            settingsRepository.getPixelSearchbarScrapedLine2()
-        pixelSearchbarWidgetPaddingH.intValue =
-            settingsRepository.getPixelSearchbarWidgetPaddingH()
-        pixelSearchbarWidgetPaddingV.intValue =
-            settingsRepository.getPixelSearchbarWidgetPaddingV()
-        pixelSearchbarTapActionEnabled.value =
-            settingsRepository.getPixelSearchbarTapActionEnabled()
-        pixelSearchbarMusicTitle.value =
-            settingsRepository.getPixelSearchbarMusicTitle()
-        pixelSearchbarMusicArtist.value =
-            settingsRepository.getPixelSearchbarMusicArtist()
-        pixelSearchbarMusicPackage.value =
-            settingsRepository.getPixelSearchbarMusicPackage()
         lockScreenClockId.value = readCurrentLockScreenClockId(context)
         lockScreenClockWeight.intValue = settingsRepository.getLockScreenClockWeight()
         lockScreenClockWidth.intValue = settingsRepository.getLockScreenClockWidth()
@@ -2657,15 +2604,6 @@ class MainViewModel : ViewModel() {
             )
         isAodWallpaperKeepOnMedia.value =
             settingsRepository.isAodWallpaperKeepOnMediaEnabled()
-        pixelSearchResultApps.value = settingsRepository.isPixelSearchResultAppsEnabled()
-        pixelSearchResultMedia.value = settingsRepository.isPixelSearchResultMediaEnabled()
-        pixelSearchResultFiles.value = settingsRepository.isPixelSearchResultFilesEnabled()
-        pixelSearchResultContacts.value = settingsRepository.isPixelSearchResultContactsEnabled()
-        pixelSearchResultSettings.value = settingsRepository.isPixelSearchResultSettingsEnabled()
-        pixelSearchResultShortcuts.value = settingsRepository.isPixelSearchResultShortcutsEnabled()
-        pixelSearchResultWeb.value = settingsRepository.isPixelSearchResultWebEnabled()
-        pixelSearchBubblesWeb.value = settingsRepository.isPixelSearchBubblesWebEnabled()
-        pixelSearchEngine.value = settingsRepository.getPixelSearchEngine()
         isPocketModeEnabled.value =
             settingsRepository.getBoolean(SettingsRepository.KEY_POCKET_MODE_ENABLED)
         isPocketModeUseLightSensor.value =
@@ -4126,310 +4064,6 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    /**
-     * Executes the set pixel searchbar enabled operation.
-     *
-     * @param enabled [Boolean] Target enabled.
-     * @param context [Context] Target context.
-     */
-    fun setPixelSearchbarEnabled(
-        enabled: Boolean,
-        context: Context,
-    ) {
-        isPixelSearchbarEnabled.value = enabled
-        settingsRepository.putBoolean(SettingsRepository.KEY_PIXEL_SEARCHBAR, enabled)
-        applyPixelSearchbarSetting(context, enabled)
-    }
-
-    private fun applyPixelSearchbarSetting(
-        context: Context,
-        enabled: Boolean,
-    ) {
-        val value = if (enabled) "com.sameerasw.essentials" else null
-        val key = "selected_search_engine"
-
-        var success = false
-        if (PermissionUtils.canWriteSecureSettings(context)) {
-            try {
-                success = Settings.Secure.putString(context.contentResolver, key, value)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-
-        if (!success) {
-            val command =
-                if (enabled) {
-                    "settings put secure $key com.sameerasw.essentials"
-                } else {
-                    "settings delete secure $key"
-                }
-            if (ShizukuUtils.hasPermission()) {
-                ShizukuUtils.runCommand(command)
-            } else if (RootUtils.isRootPermissionGranted()) {
-                RootUtils.runCommand(command)
-            }
-        }
-
-        // Force stop nexus launcher to apply setting
-        val forceStopCommand = "am force-stop com.google.android.apps.nexuslauncher"
-        if (ShizukuUtils.hasPermission()) {
-            ShizukuUtils.runCommand(forceStopCommand)
-        } else if (RootUtils.isRootPermissionGranted()) {
-            RootUtils.runCommand(forceStopCommand)
-        }
-    }
-
-    /**
-     * Executes the set pixel searchbar type operation.
-     *
-     * @param type [String] Target type.
-     * @param context [Context] Target context.
-     */
-    fun setPixelSearchbarType(
-        type: String,
-        context: Context,
-    ) {
-        pixelSearchbarType.value = type
-        settingsRepository.setPixelSearchbarType(type)
-        if (type == "music") {
-            updateMediaFromActiveSession(context)
-        }
-        updatePixelSearchbarWidget(context)
-
-        // Force stop nexus launcher to apply setting
-        val forceStopCommand = "am force-stop com.google.android.apps.nexuslauncher"
-        if (ShizukuUtils.hasPermission()) {
-            ShizukuUtils.runCommand(forceStopCommand)
-        } else if (RootUtils.isRootPermissionGranted()) {
-            RootUtils.runCommand(forceStopCommand)
-        }
-    }
-
-    /**
-     * Executes the set pixel searchbar date format operation.
-     *
-     * @param format [String] Target format.
-     * @param context [Context] Target context.
-     */
-    fun setPixelSearchbarDateFormat(
-        format: String,
-        context: Context,
-    ) {
-        pixelSearchbarDateFormat.value = format
-        settingsRepository.setPixelSearchbarDateFormat(format)
-        updatePixelSearchbarWidget(context)
-
-        // Force stop nexus launcher to apply setting
-        val forceStopCommand = "am force-stop com.google.android.apps.nexuslauncher"
-        if (ShizukuUtils.hasPermission()) {
-            ShizukuUtils.runCommand(forceStopCommand)
-        } else if (RootUtils.isRootPermissionGranted()) {
-            RootUtils.runCommand(forceStopCommand)
-        }
-    }
-
-    /**
-     * Executes the set pixel searchbar background pill operation.
-     *
-     * @param enabled [Boolean] Target enabled.
-     * @param context [Context] Target context.
-     */
-    fun setPixelSearchbarBackgroundPill(
-        enabled: Boolean,
-        context: Context,
-    ) {
-        pixelSearchbarBackgroundPill.value = enabled
-        settingsRepository.setPixelSearchbarBackgroundPill(enabled)
-        updatePixelSearchbarWidget(context)
-
-        // Force stop nexus launcher to apply setting
-        val forceStopCommand = "am force-stop com.google.android.apps.nexuslauncher"
-        if (ShizukuUtils.hasPermission()) {
-            ShizukuUtils.runCommand(forceStopCommand)
-        } else if (RootUtils.isRootPermissionGranted()) {
-            RootUtils.runCommand(forceStopCommand)
-        }
-    }
-
-    /**
-     * Executes the set pixel searchbar widget id operation.
-     *
-     * @param id [Int] Target id.
-     * @param provider [String?] Target provider.
-     * @param context [Context] Target context.
-     */
-    fun setPixelSearchbarWidgetId(
-        id: Int,
-        provider: String?,
-        context: Context,
-    ) {
-        pixelSearchbarWidgetId.intValue = id
-        pixelSearchbarWidgetProvider.value = provider
-        settingsRepository.setPixelSearchbarWidgetId(id)
-        settingsRepository.setPixelSearchbarWidgetProvider(provider)
-        updatePixelSearchbarWidget(context)
-    }
-
-    /**
-     * Executes the clear pixel searchbar widget operation.
-     *
-     * @param context [Context] Target context.
-     */
-    fun clearPixelSearchbarWidget(context: Context) {
-        pixelSearchbarWidgetId.intValue = android.appwidget.AppWidgetManager.INVALID_APPWIDGET_ID
-        pixelSearchbarWidgetProvider.value = null
-        settingsRepository.setPixelSearchbarWidgetId(android.appwidget.AppWidgetManager.INVALID_APPWIDGET_ID)
-        settingsRepository.setPixelSearchbarWidgetProvider(null)
-        context.stopService(
-            android.content.Intent(
-                context,
-                com.sameerasw.essentials.services.widgets.WidgetScraperService::class.java,
-            ),
-        )
-        updatePixelSearchbarWidget(context)
-    }
-
-    /**
-     * Executes the update pixel searchbar scraped text operation.
-     *
-     * @param line1 [String] Target line1.
-     * @param line2 [String] Target line2.
-     * @param context [Context] Target context.
-     */
-    fun updatePixelSearchbarScrapedText(
-        line1: String,
-        line2: String,
-        context: Context,
-    ) {
-        pixelSearchbarScrapedLine1.value = line1
-        pixelSearchbarScrapedLine2.value = line2
-        settingsRepository.setPixelSearchbarScrapedLine1(line1)
-        settingsRepository.setPixelSearchbarScrapedLine2(line2)
-        updatePixelSearchbarWidget(context)
-    }
-
-    /**
-     * Executes the set pixel searchbar widget padding h operation.
-     *
-     * @param value [Int] Target value.
-     * @param context [Context] Target context.
-     */
-    fun setPixelSearchbarWidgetPaddingH(
-        value: Int,
-        context: Context,
-    ) {
-        pixelSearchbarWidgetPaddingH.intValue = value
-        settingsRepository.setPixelSearchbarWidgetPaddingH(value)
-        updatePixelSearchbarWidget(context)
-    }
-
-    /**
-     * Executes the set pixel searchbar widget padding v operation.
-     *
-     * @param value [Int] Target value.
-     * @param context [Context] Target context.
-     */
-    fun setPixelSearchbarWidgetPaddingV(
-        value: Int,
-        context: Context,
-    ) {
-        pixelSearchbarWidgetPaddingV.intValue = value
-        settingsRepository.setPixelSearchbarWidgetPaddingV(value)
-        updatePixelSearchbarWidget(context)
-    }
-
-    val pixelSearchResultApps = mutableStateOf(true)
-    val pixelSearchResultMedia = mutableStateOf(false)
-    val pixelSearchResultFiles = mutableStateOf(false)
-    val pixelSearchResultContacts = mutableStateOf(true)
-    val pixelSearchResultSettings = mutableStateOf(true)
-    val pixelSearchResultShortcuts = mutableStateOf(true)
-    val pixelSearchResultWeb = mutableStateOf(true)
-    val pixelSearchBubblesWeb = mutableStateOf(false)
-    val pixelSearchEngine = mutableStateOf("Google")
-
-    fun setPixelSearchResultAppsEnabled(enabled: Boolean) {
-        pixelSearchResultApps.value = enabled
-        settingsRepository.setPixelSearchResultAppsEnabled(enabled)
-    }
-
-    fun setPixelSearchResultMediaEnabled(enabled: Boolean) {
-        pixelSearchResultMedia.value = enabled
-        settingsRepository.setPixelSearchResultMediaEnabled(enabled)
-    }
-
-    fun setPixelSearchResultFilesEnabled(enabled: Boolean) {
-        pixelSearchResultFiles.value = enabled
-        settingsRepository.setPixelSearchResultFilesEnabled(enabled)
-    }
-
-    fun setPixelSearchResultContactsEnabled(enabled: Boolean) {
-        pixelSearchResultContacts.value = enabled
-        settingsRepository.setPixelSearchResultContactsEnabled(enabled)
-    }
-
-    fun setPixelSearchResultSettingsEnabled(enabled: Boolean) {
-        pixelSearchResultSettings.value = enabled
-        settingsRepository.setPixelSearchResultSettingsEnabled(enabled)
-    }
-
-    fun setPixelSearchResultShortcutsEnabled(enabled: Boolean) {
-        pixelSearchResultShortcuts.value = enabled
-        settingsRepository.setPixelSearchResultShortcutsEnabled(enabled)
-    }
-
-    fun setPixelSearchResultWebEnabled(enabled: Boolean) {
-        pixelSearchResultWeb.value = enabled
-        settingsRepository.setPixelSearchResultWebEnabled(enabled)
-    }
-
-    fun setPixelSearchBubblesWebEnabled(enabled: Boolean) {
-        pixelSearchBubblesWeb.value = enabled
-        settingsRepository.setPixelSearchBubblesWebEnabled(enabled)
-    }
-
-    fun setPixelSearchEngine(engine: String) {
-        pixelSearchEngine.value = engine
-        settingsRepository.setPixelSearchEngine(engine)
-    }
-
-    /**
-     * Executes the set pixel searchbar tap action enabled operation.
-     *
-     * @param enabled [Boolean] Target enabled.
-     * @param context [Context] Target context.
-     */
-    fun setPixelSearchbarTapActionEnabled(
-        enabled: Boolean,
-        context: Context,
-    ) {
-        pixelSearchbarTapActionEnabled.value = enabled
-        settingsRepository.setPixelSearchbarTapActionEnabled(enabled)
-        updatePixelSearchbarWidget(context)
-    }
-
-    fun updatePixelSearchbarMusic(
-        title: String,
-        artist: String,
-        packageName: String,
-        context: Context,
-    ) {
-        pixelSearchbarMusicTitle.value = title
-        pixelSearchbarMusicArtist.value = artist
-        pixelSearchbarMusicPackage.value = packageName
-        settingsRepository.setPixelSearchbarMusicTitle(title)
-        settingsRepository.setPixelSearchbarMusicArtist(artist)
-        settingsRepository.setPixelSearchbarMusicPackage(packageName)
-        settingsRepository.incrementPixelSearchbarWidgetRevision()
-        updatePixelSearchbarWidget(context)
-    }
-
-    /**
-     * Executes the update media from active session operation.
-     *
-     * @param context [Context] Target context.
-     */
     fun updateMediaFromActiveSession(context: Context) {
         try {
             val manager =
@@ -4479,47 +4113,11 @@ class MainViewModel : ViewModel() {
                     if (filesDirFile.exists()) filesDirFile.delete()
                 }
 
-                pixelSearchbarMusicTitle.value = title
-                pixelSearchbarMusicArtist.value = artist
-                pixelSearchbarMusicPackage.value = packageName
-                settingsRepository.setPixelSearchbarMusicTitle(title)
-                settingsRepository.setPixelSearchbarMusicArtist(artist)
-                settingsRepository.setPixelSearchbarMusicPackage(packageName)
-                settingsRepository.incrementPixelSearchbarWidgetRevision()
             }
         } catch (_: Exception) {
         }
     }
 
-    /**
-     * Executes the update pixel searchbar widget operation.
-     *
-     * @param context [Context] Target context.
-     */
-    fun updatePixelSearchbarWidget(context: Context) {
-        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
-            try {
-                val manager = androidx.glance.appwidget.GlanceAppWidgetManager(context)
-                val widget =
-                    com.sameerasw.essentials.services.widgets
-                        .PixelSearchbarWidget()
-                val glanceIds =
-                    manager.getGlanceIds(com.sameerasw.essentials.services.widgets.PixelSearchbarWidget::class.java)
-                for (glanceId in glanceIds) {
-                    widget.update(context, glanceId)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
-
-    /**
-     * Executes the set lock screen clock id operation.
-     *
-     * @param clockId [String] Target clock id.
-     * @param context [Context] Target context.
-     */
     fun setLockScreenClockId(
         clockId: String,
         context: Context,

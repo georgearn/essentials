@@ -35,7 +35,6 @@ import com.sameerasw.essentials.utils.overlay.fromPrefs
 import com.sameerasw.essentials.utils.overlay.writeTo
 import com.sameerasw.essentials.services.NotificationListener
 import com.sameerasw.essentials.services.tiles.ScreenOffAccessibilityService
-import com.sameerasw.essentials.ui.activities.PixelSearchResultsActivity
 import com.sameerasw.essentials.utils.DeviceLockUtils
 import com.sameerasw.essentials.utils.HapticUtil
 import com.sameerasw.essentials.utils.PermissionUtils
@@ -430,16 +429,6 @@ object CombinedActionExecutor {
                         .trigger(context)
                 }
 
-                is Action.EssentialSearch -> {
-                    try {
-                        val intent = Intent(context, PixelSearchResultsActivity::class.java).apply {
-                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                        }
-                        context.startActivity(intent)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }
 
                 is Action.OpenApp -> {
                     try {

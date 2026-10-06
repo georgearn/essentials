@@ -184,8 +184,7 @@ object AutomationManager {
                 Automation.Type.ACCESSIBILITY_SHORTCUT,
                 Automation.Type.ACCESSIBILITY_SHORTCUT_1,
                 Automation.Type.ACCESSIBILITY_SHORTCUT_2,
-                Automation.Type.ACCESSIBILITY_SHORTCUT_3,
-                Automation.Type.PIXEL_SEARCHBAR -> {
+                Automation.Type.ACCESSIBILITY_SHORTCUT_3 -> {
                     // Triggered manually on tap/click or via accessibility shortcut
                 }
             }
