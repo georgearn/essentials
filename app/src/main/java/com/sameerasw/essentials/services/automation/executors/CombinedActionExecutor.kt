@@ -30,7 +30,6 @@ import com.sameerasw.essentials.data.repository.SettingsRepository
 import com.sameerasw.essentials.domain.HapticFeedbackType
 import com.sameerasw.essentials.domain.diy.Action
 import com.sameerasw.essentials.domain.model.DashConfig
-import com.sameerasw.essentials.domain.model.NotificationLightingStyle
 import com.sameerasw.essentials.domain.model.RippleConfig
 import com.sameerasw.essentials.utils.overlay.fromPrefs
 import com.sameerasw.essentials.utils.overlay.writeTo
@@ -468,13 +467,8 @@ object CombinedActionExecutor {
                             Action.OverlayMode.ON -> true
                             Action.OverlayMode.TOGGLE -> !current
                         }
-                    resolve(action.duo, settings.isDuoEnabled())?.let(settings::setDuoEnabled)
-                    resolve(action.island, settings.isIslandEnabled())?.let(settings::setIslandEnabled)
                     resolve(action.statusGlance, settings.isStatusGlanceEnabled())?.let(settings::setStatusGlanceEnabled)
                 }
-                is Action.TurnOnDuo -> SettingsRepository(context).setDuoEnabled(true)
-                is Action.TurnOffDuo -> SettingsRepository(context).setDuoEnabled(false)
-                is Action.ToggleDuo -> SettingsRepository(context).let { it.setDuoEnabled(!it.isDuoEnabled()) }
                 is Action.TurnOnStatusGlance -> SettingsRepository(context).setStatusGlanceEnabled(true)
                 is Action.TurnOffStatusGlance -> SettingsRepository(context).setStatusGlanceEnabled(false)
                 is Action.ToggleStatusGlance -> SettingsRepository(context).let { it.setStatusGlanceEnabled(!it.isStatusGlanceEnabled()) }
@@ -483,20 +477,6 @@ object CombinedActionExecutor {
                     val repository =
                         com.sameerasw.essentials.data.repository
                             .SettingsRepository(context)
-
-                    if (action.changeNotificationLighting) {
-                        repository.putBoolean(
-                            com.sameerasw.essentials.data.repository.SettingsRepository.KEY_EDGE_LIGHTING_ENABLED,
-                            action.notificationLightingEnabled,
-                        )
-                    }
-
-                    if (action.changeFlashlightPulse) {
-                        repository.putBoolean(
-                            com.sameerasw.essentials.data.repository.SettingsRepository.KEY_FLASHLIGHT_PULSE_ENABLED,
-                            action.flashlightPulseEnabled,
-                        )
-                    }
 
                     if (action.changeBatteryNotification) {
                         repository.setBatteryNotificationEnabled(action.batteryNotificationEnabled)
@@ -621,16 +601,6 @@ object CombinedActionExecutor {
                         }
                     }
 
-                    if (action.changeSyncSoundModeWatch) {
-                        val prefs =
-                            context.getSharedPreferences("essentials_prefs", Context.MODE_PRIVATE)
-                        prefs
-                            .edit()
-                            .putBoolean(
-                                "watch_sync_sound_mode_enabled",
-                                action.syncSoundModeWatchEnabled,
-                            ).apply()
-                    }
                 }
 
                 is Action.FreezeTag -> {

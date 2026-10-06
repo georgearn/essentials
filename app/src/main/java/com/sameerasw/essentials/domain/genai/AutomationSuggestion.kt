@@ -78,10 +78,6 @@ data class AutomationSuggestion(
     val alwaysOnDisplayMode: String? = null,
     @Guide(description = "Essentials on display mode for SometimesEssentials action: Off, On, Docked")
     val essentialsOnDisplayMode: String? = null,
-    @Guide(description = "Whether to enable flashlight pulse in SometimesEssentials action")
-    val flashlightPulseEnabled: Boolean? = null,
-    @Guide(description = "Whether to enable notification lighting in SometimesEssentials action")
-    val notificationLightingEnabled: Boolean? = null,
     @Guide(description = "Whether to enable Smart Pixels in SometimesEssentials action")
     val smartPixelsEnabled: Boolean? = null,
     @Guide(description = "Dim wallpaper amount (0.0 to 1.0) for DimWallpaper action")

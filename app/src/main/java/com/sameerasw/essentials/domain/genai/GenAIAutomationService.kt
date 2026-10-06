@@ -110,8 +110,6 @@ object GenAIAutomationService {
                       "lockScreenClockStyle": null or "DEFAULT" or "METRO" or "EXPRESSIVE" or "PRIDE" or "MONOSPACE" or "BUBBLE" (used when configuring lock screen clock in SometimesEssentials),
                       "alwaysOnDisplayMode": null or "Off" or "Dynamic" or "On" (used for SometimesEssentials action),
                       "essentialsOnDisplayMode": null or "Off" or "On" or "Docked" (used for SometimesEssentials action),
-                      "flashlightPulseEnabled": null or boolean (used for SometimesEssentials action),
-                      "notificationLightingEnabled": null or boolean (used for SometimesEssentials action),
                       "smartPixelsEnabled": null or boolean (used to turn Smart Pixels on or off in SometimesEssentials action),
                       "dimWallpaperAmount": null or float 0.0 to 1.0 (used for DimWallpaper action),
                       "selectedApps": array of package names (e.g. ["com.instagram.android"] when user specifies apps for APP type automation)
@@ -133,7 +131,7 @@ object GenAIAutomationService {
                        - Use action "FreezeTag".
                        - Set freezeTagMode="Freeze" or "Unfreeze".
                        - Set freezeTagIds with matching tag IDs/names from available tags: $availableTagsInfo.
-                    6. For deep settings like Metro lock screen clock, AOD mode, flashlight pulse, or Smart Pixels:
+                    6. For deep settings like Metro lock screen clock, AOD mode, or Smart Pixels:
                        - Use action "SometimesEssentials".
                        - Set lockScreenClockStyle="METRO", "EXPRESSIVE", etc.
                        - Set smartPixelsEnabled=true or false when user mentions smart pixels or blacking out pixels.

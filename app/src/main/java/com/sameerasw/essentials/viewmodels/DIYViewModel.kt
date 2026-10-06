@@ -248,10 +248,6 @@ class DIYViewModel(
                     "PinApp" -> Action.PinApp
                     "SometimesEssentials" ->
                         Action.SometimesEssentials(
-                            changeNotificationLighting = suggestion.notificationLightingEnabled != null,
-                            notificationLightingEnabled = suggestion.notificationLightingEnabled ?: true,
-                            changeFlashlightPulse = suggestion.flashlightPulseEnabled != null,
-                            flashlightPulseEnabled = suggestion.flashlightPulseEnabled ?: true,
                             changeEssentialsOnDisplay = suggestion.essentialsOnDisplayMode != null,
                             essentialsOnDisplayMode = suggestion.essentialsOnDisplayMode ?: "On",
                             changeAlwaysOnDisplay = suggestion.alwaysOnDisplayMode != null,

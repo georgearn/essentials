@@ -17,9 +17,6 @@ import com.google.gson.annotations.SerializedName
 import com.sameerasw.essentials.R
 import com.sameerasw.essentials.domain.HapticFeedbackType
 import com.sameerasw.essentials.domain.ScreenOffMethod
-import com.sameerasw.essentials.domain.model.NotificationLightingColorMode
-import com.sameerasw.essentials.domain.model.NotificationLightingSide
-import com.sameerasw.essentials.domain.model.NotificationLightingStyle
 import com.sameerasw.essentials.utils.battery.ChargingMode
 
 @Keep
@@ -283,10 +280,6 @@ sealed interface Action {
 
     @Keep
     data class SometimesEssentials(
-        @SerializedName("changeNotificationLighting") val changeNotificationLighting: Boolean = false,
-        @SerializedName("notificationLightingEnabled") val notificationLightingEnabled: Boolean = true,
-        @SerializedName("changeFlashlightPulse") val changeFlashlightPulse: Boolean = false,
-        @SerializedName("flashlightPulseEnabled") val flashlightPulseEnabled: Boolean = true,
         @SerializedName("changeBatteryNotification") val changeBatteryNotification: Boolean = false,
         @SerializedName("batteryNotificationEnabled") val batteryNotificationEnabled: Boolean = true,
         @SerializedName("changeEssentialsOnDisplay") val changeEssentialsOnDisplay: Boolean = false,
@@ -297,8 +290,6 @@ sealed interface Action {
         @SerializedName("gloveModeEnabled") val gloveModeEnabled: Boolean = true,
         @SerializedName("changeLockScreenClock") val changeLockScreenClock: Boolean = false,
         @SerializedName("lockScreenClockStyle") val lockScreenClockStyle: String = "DEFAULT",
-        @SerializedName("changeSyncSoundModeWatch") val changeSyncSoundModeWatch: Boolean = false,
-        @SerializedName("syncSoundModeWatchEnabled") val syncSoundModeWatchEnabled: Boolean = true,
         @SerializedName("changeSmartPixels") val changeSmartPixels: Boolean = false,
         @SerializedName("smartPixelsEnabled") val smartPixelsEnabled: Boolean = true,
     ) : Action {
@@ -308,8 +299,7 @@ sealed interface Action {
         override val permissions: List<String>
             get() {
                 val perms = mutableListOf<String>()
-                if (changeNotificationLighting ||
-                    changeEssentialsOnDisplay ||
+                if (changeEssentialsOnDisplay ||
                     changeAlwaysOnDisplay ||
                     changeLockScreenClock ||
                     changeGloveMode
@@ -347,24 +337,6 @@ sealed interface Action {
     }
 
     @Keep
-    data object TurnOnDuo : Action {
-        override val title: Int = R.string.diy_action_duo_turnon
-        override val icon: Int = R.drawable.rounded_motion_play_24
-    }
-
-    @Keep
-    data object TurnOffDuo : Action {
-        override val title: Int = R.string.diy_action_duo_turnoff
-        override val icon: Int = R.drawable.rounded_motion_play_24
-    }
-
-    @Keep
-    data object ToggleDuo : Action {
-        override val title: Int = R.string.diy_action_duo_toggle
-        override val icon: Int = R.drawable.rounded_motion_play_24
-    }
-
-    @Keep
     data object TurnOnStatusGlance : Action {
         override val title: Int = R.string.diy_action_statusglance_turnon
         override val icon: Int = R.drawable.rounded_ad_units_24
@@ -399,8 +371,6 @@ sealed interface Action {
 
     @Keep
     data class OverlayControl(
-        @SerializedName("duo") val duo: OverlayMode = OverlayMode.SKIP,
-        @SerializedName("island") val island: OverlayMode = OverlayMode.SKIP,
         @SerializedName("statusGlance") val statusGlance: OverlayMode = OverlayMode.SKIP,
     ) : Action {
         override val title: Int get() = R.string.diy_action_overlay_control

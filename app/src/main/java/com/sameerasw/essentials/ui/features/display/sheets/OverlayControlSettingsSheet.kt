@@ -60,8 +60,6 @@ fun OverlayControlSettingsSheet(
 
     val tabs =
         listOf(
-            R.string.duo_title to draft.duo,
-            R.string.island_title to draft.island,
             R.string.feat_status_glance_title to draft.statusGlance,
         )
     val modes =
@@ -75,8 +73,6 @@ fun OverlayControlSettingsSheet(
     fun select(mode: Action.OverlayMode) {
         draft =
             when (tab) {
-                0 -> draft.copy(duo = mode)
-                1 -> draft.copy(island = mode)
                 else -> draft.copy(statusGlance = mode)
             }
     }

@@ -51,11 +51,7 @@ fun SometimesEssentialsSettingsSheet(
     val context = LocalContext.current
     val view = LocalView.current
 
-    var changeNotificationLighting by remember { mutableStateOf(initialAction.changeNotificationLighting) }
-    var notificationLightingEnabled by remember { mutableStateOf(initialAction.notificationLightingEnabled) }
 
-    var changeFlashlightPulse by remember { mutableStateOf(initialAction.changeFlashlightPulse) }
-    var flashlightPulseEnabled by remember { mutableStateOf(initialAction.flashlightPulseEnabled) }
 
     var changeBatteryNotification by remember { mutableStateOf(initialAction.changeBatteryNotification) }
     var batteryNotificationEnabled by remember { mutableStateOf(initialAction.batteryNotificationEnabled) }
@@ -72,8 +68,6 @@ fun SometimesEssentialsSettingsSheet(
     var changeLockScreenClock by remember { mutableStateOf(initialAction.changeLockScreenClock) }
     var lockScreenClockStyle by remember { mutableStateOf(initialAction.lockScreenClockStyle) }
 
-    var changeSyncSoundModeWatch by remember { mutableStateOf(initialAction.changeSyncSoundModeWatch) }
-    var syncSoundModeWatchEnabled by remember { mutableStateOf(initialAction.syncSoundModeWatchEnabled) }
 
     var changeSmartPixels by remember { mutableStateOf(initialAction.changeSmartPixels) }
     var smartPixelsEnabled by remember { mutableStateOf(initialAction.smartPixelsEnabled) }
@@ -118,36 +112,6 @@ fun SometimesEssentialsSettingsSheet(
                         .verticalScroll(rememberScrollState()),
             ) {
                 RoundedCardContainer(spacing = 2.dp) {
-                    FeatureToggleRow(
-                        title = stringResource(R.string.feat_notification_lighting_title),
-                        iconRes = R.drawable.rounded_magnify_fullscreen_24,
-                        isChecked = changeNotificationLighting,
-                        onCheckedChange = {
-                            HapticUtil.performUIHaptic(view)
-                            changeNotificationLighting = it
-                        },
-                        switchValue = notificationLightingEnabled,
-                        onSwitchChange = {
-                            HapticUtil.performVirtualKeyHaptic(view)
-                            notificationLightingEnabled = it
-                        },
-                    )
-
-                    FeatureToggleRow(
-                        title = stringResource(R.string.flashlight_pulse_title),
-                        iconRes = R.drawable.rounded_flashlight_on_24,
-                        isChecked = changeFlashlightPulse,
-                        onCheckedChange = {
-                            HapticUtil.performUIHaptic(view)
-                            changeFlashlightPulse = it
-                        },
-                        switchValue = flashlightPulseEnabled,
-                        onSwitchChange = {
-                            HapticUtil.performVirtualKeyHaptic(view)
-                            flashlightPulseEnabled = it
-                        },
-                    )
-
                     FeatureToggleRow(
                         title = stringResource(R.string.feat_battery_notification_title),
                         iconRes = R.drawable.rounded_battery_android_frame_shield_24,
@@ -237,21 +201,6 @@ fun SometimesEssentialsSettingsSheet(
                     )
 
                     FeatureToggleRow(
-                        title = stringResource(R.string.feat_sync_sound_mode_title),
-                        iconRes = R.drawable.rounded_watch_24,
-                        isChecked = changeSyncSoundModeWatch,
-                        onCheckedChange = {
-                            HapticUtil.performUIHaptic(view)
-                            changeSyncSoundModeWatch = it
-                        },
-                        switchValue = syncSoundModeWatchEnabled,
-                        onSwitchChange = {
-                            HapticUtil.performVirtualKeyHaptic(view)
-                            syncSoundModeWatchEnabled = it
-                        },
-                    )
-
-                    FeatureToggleRow(
                         title = stringResource(R.string.feat_smart_pixels_title),
                         iconRes = R.drawable.rounded_grain_24,
                         isChecked = changeSmartPixels,
@@ -277,10 +226,6 @@ fun SometimesEssentialsSettingsSheet(
                         HapticUtil.performUIHaptic(view)
                         onSave(
                             Action.SometimesEssentials(
-                                changeNotificationLighting = changeNotificationLighting,
-                                notificationLightingEnabled = notificationLightingEnabled,
-                                changeFlashlightPulse = changeFlashlightPulse,
-                                flashlightPulseEnabled = flashlightPulseEnabled,
                                 changeBatteryNotification = changeBatteryNotification,
                                 batteryNotificationEnabled = batteryNotificationEnabled,
                                 changeEssentialsOnDisplay = changeEssentialsOnDisplay,
@@ -291,8 +236,6 @@ fun SometimesEssentialsSettingsSheet(
                                 gloveModeEnabled = gloveModeEnabled,
                                 changeLockScreenClock = changeLockScreenClock,
                                 lockScreenClockStyle = lockScreenClockStyle,
-                                changeSyncSoundModeWatch = changeSyncSoundModeWatch,
-                                syncSoundModeWatchEnabled = syncSoundModeWatchEnabled,
                                 changeSmartPixels = changeSmartPixels,
                                 smartPixelsEnabled = smartPixelsEnabled,
                             ),
