@@ -1260,6 +1260,16 @@ class SettingsRepository(
 
                 // Preserve sensitive or volatile local state not present in backups
                 val preservedValues = mutableMapOf<String, Any?>()
+                val keysToPreserve =
+                    listOf(
+                        KEY_GITHUB_ACCESS_TOKEN,
+                        KEY_GITHUB_WORKFLOW_TOKEN,
+                        KEY_SHIZUKU_AUTH_TOKEN,
+                        LEGACY_WEATHER_API_KEY_PREFIX,
+                        "airsync_mac_connected",
+                        KEY_SNOOZE_DISCOVERED_CHANNELS,
+                        KEY_SHUT_UP_ORIGINAL_SETTINGS,
+                    )
                 val macBatteryKeys = p.all.keys.filter { it.startsWith("mac_battery_") }
                 (keysToPreserve + macBatteryKeys).forEach { key ->
                     if (p.contains(key)) {
@@ -2920,12 +2930,6 @@ class SettingsRepository(
         display.getRealSize(size)
         if (size.x <= 0 || size.y <= 0) return "default"
         return "${minOf(size.x, size.y)}x${maxOf(size.x, size.y)}"
-    }
-
-    fun markDisplayProfileSeen() {
-        val id = getDisplayProfileId()
-        if (!seen.contains(id)) {
-        }
     }
 
     fun isFoldableDevice(): Boolean =
