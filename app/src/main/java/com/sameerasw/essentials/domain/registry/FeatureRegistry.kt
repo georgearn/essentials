@@ -17,7 +17,6 @@ import com.sameerasw.essentials.R
 import com.sameerasw.essentials.data.repository.SettingsRepository
 import com.sameerasw.essentials.domain.model.Feature
 import com.sameerasw.essentials.domain.model.SearchSetting
-import com.sameerasw.essentials.ui.activities.PixelSearchbarSettingsActivity
 import com.sameerasw.essentials.ui.activities.WatermarkActivity
 import com.sameerasw.essentials.ui.features.consciousgate.CONSCIOUS_GATE_FEATURE_ID
 import com.sameerasw.essentials.utils.DeviceUtils
@@ -540,22 +539,6 @@ object FeatureRegistry {
                 ) {}
             },
             object : Feature(
-                id = "Watch",
-                title = R.string.feat_watch_title,
-                iconRes = R.drawable.rounded_watch_24,
-                category = R.string.cat_tools,
-                description = R.string.feat_watch_desc,
-                showToggle = false,
-            ) {
-                override fun isEnabled(viewModel: MainViewModel) = true
-
-                override fun onToggle(
-                    viewModel: MainViewModel,
-                    context: Context,
-                    enabled: Boolean,
-                ) {}
-            },
-            object : Feature(
                 id = "Screen off widget",
                 title = R.string.feat_screen_off_widget_title,
                 iconRes = R.drawable.rounded_widgets_24,
@@ -582,46 +565,6 @@ object FeatureRegistry {
                     context: Context,
                     enabled: Boolean,
                 ) {}
-            },
-            object : Feature(
-                id = "Pixel Searchbar",
-                title = R.string.feat_pixel_searchbar_title,
-                iconRes = R.drawable.rounded_search_24,
-                category = R.string.cat_interface,
-                description = R.string.feat_pixel_searchbar_desc,
-                aboutDescription = R.string.about_desc_pixel_searchbar,
-                permissionKeys = listOf("WRITE_SECURE_SETTINGS"),
-                showToggle = true,
-                hasMoreSettings = true,
-                isBeta = true,
-                parentFeatureId = "Widgets",
-                animationRes = R.raw.searchbar_motion,
-            ) {
-                override fun isEnabled(viewModel: MainViewModel) = viewModel.isPixelSearchbarEnabled.value
-
-                override fun isToggleEnabled(
-                    viewModel: MainViewModel,
-                    context: Context,
-                ) = viewModel.isWriteSecureSettingsEnabled.value ||
-                    viewModel.isShizukuPermissionGranted.value ||
-                    viewModel.isRootPermissionGranted.value
-
-                override fun onToggle(
-                    viewModel: MainViewModel,
-                    context: Context,
-                    enabled: Boolean,
-                ) {
-                    viewModel.setPixelSearchbarEnabled(enabled, context)
-                }
-
-                override fun onClick(
-                    context: Context,
-                    viewModel: MainViewModel,
-                ) {
-                    context.startActivity(Intent(context, PixelSearchbarSettingsActivity::class.java))
-                }
-
-                override fun isDeviceSupported(context: Context) = DeviceUtils.isGoogleDevice()
             },
             object : Feature(
                 id = "Statusbar icons",
@@ -709,32 +652,6 @@ object FeatureRegistry {
                     context: Context,
                     enabled: Boolean,
                 ) = viewModel.setStatusGlanceEnabled(enabled)
-            },
-            object : Feature(
-                id = "Duo",
-                title = R.string.duo_title,
-                iconRes = R.drawable.rounded_motion_play_24,
-                category = R.string.cat_interface,
-                description = R.string.duo_desc,
-                aboutDescription = R.string.duo_desc,
-                permissionKeys = listOf("ACCESSIBILITY"),
-                hasMoreSettings = true,
-                showToggle = true,
-                parentFeatureId = "Display",
-                animationRes = R.raw.duo_motion,
-            ) {
-                override fun isEnabled(viewModel: MainViewModel) = viewModel.isDuoEnabled.value
-
-                override fun isToggleEnabled(
-                    viewModel: MainViewModel,
-                    context: Context,
-                ) = viewModel.isAccessibilityEnabled.value
-
-                override fun onToggle(
-                    viewModel: MainViewModel,
-                    context: Context,
-                    enabled: Boolean,
-                ) = viewModel.setDuoEnabled(enabled)
             },
             object : Feature(
                 id = "Caffeinate",
@@ -1693,198 +1610,6 @@ object FeatureRegistry {
                             com.sameerasw.essentials.ui.activities.WallpaperActivity::class.java,
                         ),
                     )
-                }
-            },
-            object : Feature(
-                id = "Lock from Watch",
-                title = R.string.feat_lock_from_watch_title,
-                iconRes = R.drawable.rounded_lock_24,
-                category = R.string.cat_tools,
-                description = R.string.feat_lock_from_watch_desc,
-                aboutDescription = R.string.feat_lock_from_watch_desc,
-                parentFeatureId = "Watch",
-                hasMoreSettings = true,
-                showToggle = false,
-            ) {
-                override fun isEnabled(viewModel: MainViewModel) = true
-
-                override fun onToggle(
-                    viewModel: MainViewModel,
-                    context: Context,
-                    enabled: Boolean,
-                ) {}
-            },
-            object : Feature(
-                id = "Watch Controls",
-                title = R.string.feat_watch_controls_title,
-                iconRes = R.drawable.rounded_edit_24,
-                category = R.string.cat_tools,
-                description = R.string.feat_watch_controls_desc,
-                aboutDescription = R.string.feat_watch_controls_desc,
-                parentFeatureId = "Watch",
-                hasMoreSettings = true,
-                showToggle = false,
-            ) {
-                override fun isEnabled(viewModel: MainViewModel) = true
-
-                override fun onToggle(
-                    viewModel: MainViewModel,
-                    context: Context,
-                    enabled: Boolean,
-                ) {}
-            },
-            object : Feature(
-                id = "Watchface",
-                title = R.string.watch_watchface_title,
-                iconRes = R.drawable.rounded_watch_24,
-                category = R.string.cat_tools,
-                description = R.string.watch_watchface_desc,
-                aboutDescription = R.string.watch_watchface_desc,
-                parentFeatureId = "Watch",
-                hasMoreSettings = true,
-                showToggle = false,
-            ) {
-                override fun isEnabled(viewModel: MainViewModel) = true
-
-                override fun onToggle(
-                    viewModel: MainViewModel,
-                    context: Context,
-                    enabled: Boolean,
-                ) {}
-            },
-            object : Feature(
-                id = "Complications",
-                title = R.string.watch_complications_title,
-                iconRes = R.drawable.rounded_widgets_24,
-                category = R.string.cat_tools,
-                description = R.string.watch_complications_desc,
-                aboutDescription = R.string.watch_complications_desc,
-                parentFeatureId = "Watch",
-                hasMoreSettings = true,
-                showToggle = false,
-            ) {
-                override fun isEnabled(viewModel: MainViewModel) = true
-
-                override fun onToggle(
-                    viewModel: MainViewModel,
-                    context: Context,
-                    enabled: Boolean,
-                ) {}
-            },
-            object : Feature(
-                id = "Notification Sync",
-                title = R.string.watch_notif_sync_title,
-                iconRes = R.drawable.rounded_notification_settings_24,
-                category = R.string.cat_tools,
-                description = R.string.watch_notif_sync_desc,
-                aboutDescription = R.string.watch_notif_sync_desc,
-                permissionKeys = listOf("NOTIFICATION_LISTENER"),
-                parentFeatureId = "Watch",
-                hasMoreSettings = true,
-                showToggle = true,
-                isLegacy = true,
-            ) {
-                override fun isEnabled(viewModel: MainViewModel) = viewModel.isNotificationSyncEnabled.value
-
-                override fun isToggleEnabled(
-                    viewModel: MainViewModel,
-                    context: Context,
-                ) = viewModel.isNotificationListenerEnabled.value
-
-                override fun onToggle(
-                    viewModel: MainViewModel,
-                    context: Context,
-                    enabled: Boolean,
-                ) = viewModel.setNotificationSyncEnabled(enabled, context)
-            },
-            object : Feature(
-                id = "Call Sync",
-                title = R.string.watch_call_sync_title,
-                iconRes = R.drawable.rounded_call_24,
-                category = R.string.cat_tools,
-                description = R.string.watch_call_sync_desc,
-                aboutDescription = R.string.watch_call_sync_desc,
-                permissionKeys = listOf("READ_PHONE_STATE", "ANSWER_PHONE_CALLS", "READ_CONTACTS", "READ_CALL_LOG"),
-                parentFeatureId = "Watch",
-                hasMoreSettings = false,
-                showToggle = true,
-                isLegacy = true,
-            ) {
-                override fun isEnabled(viewModel: MainViewModel) = viewModel.isCallSyncEnabled.value
-
-                override fun isToggleEnabled(
-                    viewModel: MainViewModel,
-                    context: Context,
-                ) = com.sameerasw.essentials.utils.PermissionUtils
-                    .hasCallPermissions(context)
-
-                override fun onToggle(
-                    viewModel: MainViewModel,
-                    context: Context,
-                    enabled: Boolean,
-                ) = viewModel.setCallSyncEnabled(enabled, context)
-            },
-            object : Feature(
-                id = "Watch Wireless Debugging",
-                title = R.string.feat_watch_wireless_debugging_title,
-                iconRes = R.drawable.rounded_adb_24,
-                category = R.string.cat_tools,
-                description = R.string.feat_watch_wireless_debugging_desc,
-                parentFeatureId = "Watch",
-                hasMoreSettings = true,
-                showToggle = true,
-            ) {
-                override fun isEnabled(viewModel: MainViewModel): Boolean {
-                    val context = EssentialsApp.context
-                    val prefs = context.getSharedPreferences("essentials_prefs", Context.MODE_PRIVATE)
-                    return prefs.getBoolean("watch_adb_wifi_enabled", false)
-                }
-
-                override fun onToggle(
-                    viewModel: MainViewModel,
-                    context: Context,
-                    enabled: Boolean,
-                ) {
-                    // Send message to watch to toggle ADB Wifi
-                    val messageClient =
-                        com.google.android.gms.wearable.Wearable
-                            .getMessageClient(context)
-                    val nodeClient =
-                        com.google.android.gms.wearable.Wearable
-                            .getNodeClient(context)
-                    nodeClient.connectedNodes.addOnSuccessListener { nodes ->
-                        for (node in nodes) {
-                            messageClient.sendMessage(node.id, "/toggle_watch_adb_wifi", byteArrayOf())
-                        }
-                    }
-                }
-            },
-            object : Feature(
-                id = "Sync sound mode",
-                title = R.string.feat_sync_sound_mode_title,
-                iconRes = R.drawable.rounded_volume_up_24,
-                category = R.string.cat_tools,
-                description = R.string.feat_sync_sound_mode_desc,
-                parentFeatureId = "Watch",
-                hasMoreSettings = false,
-                showToggle = true,
-            ) {
-                override fun isEnabled(viewModel: MainViewModel): Boolean {
-                    val context = EssentialsApp.context
-                    val prefs = context.getSharedPreferences("essentials_prefs", Context.MODE_PRIVATE)
-                    return prefs.getBoolean("watch_sync_sound_mode_enabled", false)
-                }
-
-                override fun onToggle(
-                    viewModel: MainViewModel,
-                    context: Context,
-                    enabled: Boolean,
-                ) {
-                    val prefs = context.getSharedPreferences("essentials_prefs", Context.MODE_PRIVATE)
-                    prefs.edit().putBoolean("watch_sync_sound_mode_enabled", enabled).apply()
-                    // Force sync to sync new sound mode status to watch if enabled
-                    com.sameerasw.essentials.services.DeviceInfoSyncManager
-                        .forceSync(context)
                 }
             },
             object : Feature(

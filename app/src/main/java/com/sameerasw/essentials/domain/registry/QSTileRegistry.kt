@@ -23,7 +23,6 @@ import com.sameerasw.essentials.services.tiles.ChargeQuickTileService
 import com.sameerasw.essentials.services.tiles.ColorPickerTileService
 import com.sameerasw.essentials.services.tiles.DataSimTileService
 import com.sameerasw.essentials.services.tiles.DeveloperOptionsTileService
-import com.sameerasw.essentials.services.tiles.DuoTileService
 import com.sameerasw.essentials.services.tiles.DynamicNightLightTileService
 import com.sameerasw.essentials.services.tiles.EssentialsOnDisplayTileService
 import com.sameerasw.essentials.services.tiles.FlashlightTileService
@@ -332,14 +331,6 @@ object QSTileRegistry {
                 EssentialsOnDisplayTileService::class.java,
                 listOf("ACCESSIBILITY", "NOTIFICATION_LISTENER"),
                 R.string.feat_essentials_on_display_desc,
-                R.string.cat_visuals,
-            ),
-            QSTileInfo(
-                R.string.duo_title,
-                R.drawable.rounded_motion_play_24,
-                DuoTileService::class.java,
-                listOf("ACCESSIBILITY"),
-                R.string.about_desc_duo_tile,
                 R.string.cat_visuals,
             ),
             QSTileInfo(

@@ -160,13 +160,7 @@ fun SetupFeatures(
         )
     }
 
-    val watchViewModel: com.sameerasw.essentials.viewmodels.WatchViewModel =
-        androidx.lifecycle.viewmodel.compose
-            .viewModel()
-    val isWearUpdateRequired = watchViewModel.isWearUpdateRequired.value
-
     LaunchedEffect(Unit) {
-        watchViewModel.check(context)
         viewModel.refreshFreezePickedApps(context, silent = true)
     }
 
@@ -1495,7 +1489,7 @@ fun SetupFeatures(
                                         } else {
                                             null
                                         },
-                                    hasBadge = if (feature.id == "Watch") isWearUpdateRequired else false,
+                                    hasBadge = false,
                                 )
                             }
                         }

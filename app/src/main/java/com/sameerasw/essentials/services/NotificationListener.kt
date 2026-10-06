@@ -952,7 +952,6 @@ class NotificationListener : NotificationListenerService() {
 
                 if (eventType != null) {
                     triggerAmbientGlance(controller, eventType, isLiked, sbn = sbn)
-                    WatchNotificationSyncManager.onNotificationPosted(applicationContext, sbn, isSilent = false)
                 }
             }
         } catch (e: Exception) {
@@ -993,7 +992,6 @@ class NotificationListener : NotificationListenerService() {
             ScreenOffAccessibilityService.updateSmartPixelsState()
         }
         handleRespectNotifications(sbn)
-        if (!isRepost) WatchNotificationSyncManager.onNotificationPosted(applicationContext, sbn, isSilentNotification(sbn, rankingMap))
 
         val extras = sbn.notification.extras
         if (extras != null && (extras.getInt(Notification.EXTRA_PROGRESS_MAX, 0) > 0 || extras.containsKey(Notification.EXTRA_PROGRESS_INDETERMINATE))) {
@@ -1203,7 +1201,6 @@ class NotificationListener : NotificationListenerService() {
         CallStateRepository.onCallNotificationRemoved(sbn.key)
         ChronometerRepository.onRemoved(sbn.key)
         unreadNotifications.remove(sbn.key)
-        WatchNotificationSyncManager.onNotificationRemoved(applicationContext, sbn.key)
         lastCallVibrateTime.remove(sbn.key)
         notifyAlertRemoved(sbn.key)
         if (!hasReadableExtras(sbn)) {

@@ -39,7 +39,6 @@ import com.sameerasw.essentials.services.handlers.AodForceTurnOffHandler
 import com.sameerasw.essentials.services.handlers.AodWallpaperOverlayHandler
 import com.sameerasw.essentials.services.handlers.AppFlowHandler
 import com.sameerasw.essentials.services.handlers.ButtonRemapHandler
-import com.sameerasw.essentials.services.handlers.DuoOverlayHandler
 import com.sameerasw.essentials.services.handlers.FlashlightHandler
 import com.sameerasw.essentials.services.handlers.OmniGestureOverlayHandler
 import com.sameerasw.essentials.services.handlers.PocketModeHandler
@@ -72,7 +71,6 @@ class ScreenOffAccessibilityService :
     private lateinit var statusBarIconHandler: StatusBarIconHandler
     private lateinit var pocketModeHandler: PocketModeHandler
     private lateinit var smartPixelsHandler: com.sameerasw.essentials.services.handlers.SmartPixelsHandler
-    private lateinit var duoOverlayHandler: DuoOverlayHandler
     private lateinit var statusGlanceHandler: StatusGlanceHandler
 
     private var lightSensor: Sensor? = null
@@ -251,14 +249,12 @@ class ScreenOffAccessibilityService :
                 }
                 aodWallpaperOverlayHandler.updateState()
                 if (key == SettingsRepository.KEY_AOD_WALLPAPER_MEDIA_EXCLUDED_APPS) {
-                    duoOverlayHandler.updateState()
                     statusGlanceHandler.updateState()
                 }
             } else if (key?.startsWith("duo_") == true ||
                 key == SettingsRepository.KEY_DUO_ENABLED ||
                 key == SettingsRepository.KEY_ENABLE_UNSUPPORTED_FEATURES
             ) {
-                duoOverlayHandler.updateState()
             } else if (key == SettingsRepository.KEY_ISLAND_SUPPRESS_SYSTEM_HEADS_UP) {
                 SettingsRepository(this).applyHeadsUpSuppression()
             } else if (key?.startsWith("status_glance_") == true ||
@@ -299,13 +295,11 @@ class ScreenOffAccessibilityService :
         smartPixelsHandler =
             com.sameerasw.essentials.services.handlers
                 .SmartPixelsHandler(this)
-        duoOverlayHandler = DuoOverlayHandler(this)
         statusGlanceHandler = StatusGlanceHandler(this)
 
         flashlightHandler.register()
         statusBarIconHandler.register()
         smartPixelsHandler.init()
-        duoOverlayHandler.init()
         statusGlanceHandler.init()
         setupReceivers()
     }
@@ -326,7 +320,6 @@ class ScreenOffAccessibilityService :
                             ambientGlanceHandler.dismissImmediately()
                             aodForceTurnOffHandler.removeOverlay()
                             aodWallpaperOverlayHandler.onScreenOn()
-                            duoOverlayHandler.onScreenOn()
                             statusGlanceHandler.onScreenOn()
                             freezeHandler.removeCallbacks(freezeRunnable)
                             stopInputEventListener()
@@ -337,14 +330,12 @@ class ScreenOffAccessibilityService :
                         Intent.ACTION_SCREEN_OFF -> {
                             isScreenOn = false
                             statusGlanceHandler.setShadeExpanded(false)
-                            duoOverlayHandler.setShadeExpanded(false)
                             appFlowHandler.clearAuthenticated()
                             appFlowHandler.clearConsciousGate()
                             scheduleFreeze()
                             startInputEventListenerIfEnabled()
                             ambientGlanceHandler.checkAndShowOnScreenOff()
                             aodWallpaperOverlayHandler.onScreenOff()
-                            duoOverlayHandler.onScreenOff()
                             statusGlanceHandler.onScreenOff()
                             omniGestureOverlayHandler.updateOverlay(false) // Always hide when screen is off
                             pocketModeHandler.onScreenOff()
@@ -354,7 +345,6 @@ class ScreenOffAccessibilityService :
                         Intent.ACTION_USER_PRESENT -> {
                             aodWallpaperOverlayHandler.onUserPresent()
                             statusGlanceHandler.onUserPresent()
-                            duoOverlayHandler.onUserPresent()
                             val prefs = getSharedPreferences("essentials_prefs", MODE_PRIVATE)
                             if (prefs.getBoolean("pocket_mode_lock_screen_only", false)) {
                                 pocketModeHandler.onScreenOff() // cancel pending timer + remove overlay
@@ -455,7 +445,6 @@ class ScreenOffAccessibilityService :
                     AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS
             }
         updateOmniOverlay()
-        duoOverlayHandler.restart()
         statusGlanceHandler.restart()
     }
 
@@ -493,7 +482,6 @@ class ScreenOffAccessibilityService :
         buttonRemapHandler.isVolumeDialogVisible = false
         omniGestureOverlayHandler.removeOverlay()
         smartPixelsHandler.destroy()
-        duoOverlayHandler.destroy()
         statusGlanceHandler.destroy()
         statusBarIconHandler.unregister()
         stopInputEventListener()
@@ -579,7 +567,6 @@ class ScreenOffAccessibilityService :
                 false
             }
         statusGlanceHandler.setShadeExpanded(expanded)
-        duoOverlayHandler.setShadeExpanded(expanded)
     }
 
     private fun isShadeWindowVisible(): Boolean {
@@ -614,7 +601,6 @@ class ScreenOffAccessibilityService :
                             outBounds.height() >= displayMetrics.heightPixels
 
                         val isFullscreen = isCoveringFullDisplay && !hasStatusBar
-                        duoOverlayHandler.setFullscreen(isFullscreen)
                         statusGlanceHandler.setFullscreen(isFullscreen)
                     }
                 }
@@ -743,7 +729,6 @@ class ScreenOffAccessibilityService :
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         updateOmniOverlay() // Force refresh overlay on rotation
-        duoOverlayHandler.onConfigurationChanged(newConfig)
         statusGlanceHandler.onConfigurationChanged(newConfig)
         ambientGlanceHandler.onConfigurationChanged()
     }
