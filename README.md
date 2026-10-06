@@ -34,18 +34,6 @@ The fork has not been built or tested on a device yet, so expect rough edges. Wi
 </p>
 
 
-<h3 align="center">
-<strong>Featuring Essentials</strong>
-</h3>
-<p align="center">
-  <a href="https://youtu.be/7favc9MDedQ?si=dduc7452R5Yxj7Aa&t=79"><img align="top"  width="18%" alt="Frame 6" src="https://github.com/user-attachments/assets/8bda579e-3ab6-4255-955e-7755598511f2" /></a>
-  <a href="https://youtu.be/iY3FBMTA15A?si=L2XX4sZQn3iKf2EZ&t=753"><img align="top"  width="18%" alt="Frame 7" src="https://github.com/user-attachments/assets/abab16b1-3750-4c0e-8a15-4928cb9253d4" /></a>
-  <a href="https://youtu.be/mDQ8o4JlXjM?si=kZsIxv37m7K1Gij2&t=780"><img align="top"  width="18%" alt="CleanShot-Helium-(1) HowToMen - YouTube-20260720-8  33 41@2x" src="https://github.com/user-attachments/assets/cac074da-8b15-44d3-a66c-3ac67316606d" /></a>
-  <a href="https://youtu.be/HE0s76z4Afs"><img align="top"  width="18%" alt="Frame 7" src="https://github.com/user-attachments/assets/02643ad6-e221-4fcc-bd40-e0c100af3d69" /></a>
-  <a href="https://www.androidauthority.com/good-lock-for-pixel-essentials-app-hands-on-3670994/"><img align="top"  width="18%" alt="Frame 7" src="https://github.com/user-attachments/assets/5469b309-6929-4775-93c5-7ee2f0d57ba1" /></a>
-</p>
-
-
 <br>
 
 <p align="center">
@@ -67,25 +55,11 @@ The fork has not been built or tested on a device yet, so expect rough edges. Wi
 
 - [Features](https://github.com/sameerasw/essentials/wiki)
 - [Requirements](https://github.com/sameerasw/essentials/wiki/Installation#system-requirements)
-- [Screenshots](#screenshots)
 - [Installation](#installation)
 - [Shell Providers (Shizuku & Root)](#shell-providers-shizuku--root)
 - [Accessibility Permissions](#how-to-grant-accessibility-permissions)
 - [Localization](#localization)
-- [Contributing](#contributing)
 
-
-# Screenshots
-
-<p align="center">
-<img width="33%" alt="1" src="https://github.com/user-attachments/assets/d57ae349-b2f1-45a6-bd37-df17c7fbcbeb" />
-<img width="33%" alt="2" src="https://github.com/user-attachments/assets/3352826c-6bac-4f7a-b521-8d93e7f69da3" />
-<img width="33%" alt="3" src="https://github.com/user-attachments/assets/34b9d52b-4c7f-4dc8-9a71-4f167fdf88d2" />
-</p>
-<p align="center">
-<img width="49%" alt="4" src="https://github.com/user-attachments/assets/81895104-0096-4294-b747-0421ca42b8d8" />
-<img width="49%" alt="5" src="https://github.com/user-attachments/assets/f8bbf05a-ff5c-4157-adb3-3990875f9500" />
-</p>
 
 # Installation
 
@@ -132,34 +106,6 @@ python3 scripts/validate_strings.py
 # Auto-fix quote and percent escaping issues automatically
 python3 scripts/validate_strings.py --fix
 ```
-
-# Contributing
-
-<a href="https://github.com/sameerasw/essentials/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=sameerasw/essentials" />
-</a>
-
-We welcome contributions from the community! Whether you're fixing a bug, adding a new feature, or improving documentation, your help is appreciated.
-
-Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
-
-# Thanks
-
-- [chalda-pnuzig/emojis.json](https://github.com/chalda-pnuzig/emojis.json) - Keyboard emojis
-- [xav-ie/generate-kaomoji](https://github.com/xav-ie/generate-kaomoji) - Keyboard kaomojis
-- [TebbeUbben/ChargeQuickTile](https://github.com/TebbeUbben/ChargeQuickTile) - Pixel charging QS
-- Link shortener by [@Balajitechlabs](https://github.com/Balajitechlabs)
-
-# Stars <3
-
-<a href="https://star-history.dera.page/#sameerasw/essentials&Date">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://star-history.dera.page/svg?repos=sameerasw/essentials&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://star-history.dera.page/svg?repos=sameerasw/essentials&type=Date" />
-   <img alt="Star History Chart" src="https://star-history.dera.page/svg?repos=sameerasw/essentials&type=Date" />
- </picture>
-</a>
-
 
 ---
 
