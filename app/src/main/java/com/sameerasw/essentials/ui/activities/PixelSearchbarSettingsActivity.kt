@@ -320,25 +320,35 @@ fun PixelSearchbarSettingsUI(
     // Track the allocated ID so we can deallocate on cancel
     var pendingWidgetId by remember { mutableStateOf(AppWidgetManager.INVALID_APPWIDGET_ID) }
 
+    // Finalises a widget selection once the id is bound to a provider
+    fun commitWidget(widgetId: Int) {
+        val info = awm.getAppWidgetInfo(widgetId)
+        val providerName = info?.provider?.flattenToString()
+        viewModel.setPixelSearchbarType("widget", context)
+        viewModel.setPixelSearchbarWidgetId(widgetId, providerName, context)
+        WidgetScraperService.start(context)
+        pendingWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
+    }
+
+    fun cancelPendingWidget() {
+        if (pendingWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
+            widgetHost.deleteAppWidgetId(pendingWidgetId)
+            pendingWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
+        }
+    }
+
     val bindLauncher =
         rememberLauncherForActivityResult(
             ActivityResultContracts.StartActivityForResult(),
         ) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val widgetId = pendingWidgetId
-                if (widgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
-                    val info = awm.getAppWidgetInfo(widgetId)
-                    val providerName = info?.provider?.flattenToString()
-                    viewModel.setPixelSearchbarType("widget", context)
-                    viewModel.setPixelSearchbarWidgetId(widgetId, providerName, context)
-                    WidgetScraperService.start(context)
-                    pendingWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
-                }
+            val widgetId = pendingWidgetId
+            if (result.resultCode == Activity.RESULT_OK &&
+                widgetId != AppWidgetManager.INVALID_APPWIDGET_ID &&
+                awm.getAppWidgetInfo(widgetId)?.provider != null
+            ) {
+                commitWidget(widgetId)
             } else {
-                if (pendingWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
-                    widgetHost.deleteAppWidgetId(pendingWidgetId)
-                    pendingWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
-                }
+                cancelPendingWidget()
             }
         }
 
@@ -346,39 +356,49 @@ fun PixelSearchbarSettingsUI(
         rememberLauncherForActivityResult(
             ActivityResultContracts.StartActivityForResult(),
         ) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val data = result.data ?: return@rememberLauncherForActivityResult
-                val widgetId =
-                    data.getIntExtra(
-                        AppWidgetManager.EXTRA_APPWIDGET_ID,
-                        AppWidgetManager.INVALID_APPWIDGET_ID,
-                    )
-                if (widgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
-                    val info = awm.getAppWidgetInfo(widgetId)
-                    val isBound = if (info?.provider != null) {
-                        awm.bindAppWidgetIdIfAllowed(widgetId, info.provider)
-                    } else true
+            val data = result.data
+            val widgetId =
+                data?.getIntExtra(
+                    AppWidgetManager.EXTRA_APPWIDGET_ID,
+                    AppWidgetManager.INVALID_APPWIDGET_ID,
+                ) ?: pendingWidgetId
+            if (result.resultCode != Activity.RESULT_OK || widgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
+                cancelPendingWidget()
+                return@rememberLauncherForActivityResult
+            }
+            pendingWidgetId = widgetId
 
-                    if (!isBound && info?.provider != null) {
-                        val bindIntent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
-                            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
-                            putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, info.provider)
-                        }
-                        bindLauncher.launch(bindIntent)
-                    } else {
-                        val providerName = info?.provider?.flattenToString()
-                        viewModel.setPixelSearchbarType("widget", context)
-                        viewModel.setPixelSearchbarWidgetId(widgetId, providerName, context)
-                        WidgetScraperService.start(context)
-                        pendingWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
-                    }
+            // Newer pickers bind the widget themselves. Binding an id twice fails and
+            // used to cancel the selection, so only bind here when it is still unbound.
+            val boundProvider = awm.getAppWidgetInfo(widgetId)?.provider
+            if (boundProvider != null) {
+                commitWidget(widgetId)
+                return@rememberLauncherForActivityResult
+            }
+
+            @Suppress("DEPRECATION")
+            val requestedProvider: android.content.ComponentName? =
+                if (Build.VERSION.SDK_INT >= 33) {
+                    data?.getParcelableExtra(
+                        AppWidgetManager.EXTRA_APPWIDGET_PROVIDER,
+                        android.content.ComponentName::class.java,
+                    )
+                } else {
+                    data?.getParcelableExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER)
                 }
+            if (requestedProvider == null) {
+                cancelPendingWidget()
+                return@rememberLauncherForActivityResult
+            }
+            if (awm.bindAppWidgetIdIfAllowed(widgetId, requestedProvider)) {
+                commitWidget(widgetId)
             } else {
-                // Deallocate the ID we pre-allocated if user cancelled
-                if (pendingWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
-                    widgetHost.deleteAppWidgetId(pendingWidgetId)
-                    pendingWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
-                }
+                val bindIntent =
+                    Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
+                        putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
+                        putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, requestedProvider)
+                    }
+                bindLauncher.launch(bindIntent)
             }
         }
 
@@ -440,7 +460,19 @@ fun PixelSearchbarSettingsUI(
                         onItemSelected = { type ->
                             HapticUtil.performVirtualKeyHaptic(view)
                             when {
-                                type == "widget" -> openWidgetPicker()
+                                type == "widget" -> {
+                                    // The scraper hosts the widget in a 1px overlay, which needs this permission
+                                    if (!android.provider.Settings.canDrawOverlays(context)) {
+                                        context.startActivity(
+                                            Intent(
+                                                android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                                android.net.Uri.parse("package:${context.packageName}"),
+                                            ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                                        )
+                                    } else {
+                                        openWidgetPicker()
+                                    }
+                                }
                                 type == "music" -> {
                                     WidgetScraperService.start(context)
                                     viewModel.setPixelSearchbarType(type, context)
