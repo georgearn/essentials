@@ -17,6 +17,7 @@ import com.sameerasw.essentials.R
 import com.sameerasw.essentials.data.repository.SettingsRepository
 import com.sameerasw.essentials.domain.model.Feature
 import com.sameerasw.essentials.domain.model.SearchSetting
+import com.sameerasw.essentials.ui.activities.PixelSearchbarSettingsActivity
 import com.sameerasw.essentials.ui.activities.WatermarkActivity
 import com.sameerasw.essentials.ui.features.consciousgate.CONSCIOUS_GATE_FEATURE_ID
 import com.sameerasw.essentials.utils.DeviceUtils
@@ -565,6 +566,46 @@ object FeatureRegistry {
                     context: Context,
                     enabled: Boolean,
                 ) {}
+            },
+            object : Feature(
+                id = "Pixel Searchbar",
+                title = R.string.feat_pixel_searchbar_title,
+                iconRes = R.drawable.rounded_search_24,
+                category = R.string.cat_interface,
+                description = R.string.feat_pixel_searchbar_desc,
+                aboutDescription = R.string.about_desc_pixel_searchbar,
+                permissionKeys = listOf("WRITE_SECURE_SETTINGS"),
+                showToggle = true,
+                hasMoreSettings = true,
+                isBeta = true,
+                parentFeatureId = "Widgets",
+                animationRes = R.raw.searchbar_motion,
+            ) {
+                override fun isEnabled(viewModel: MainViewModel) = viewModel.isPixelSearchbarEnabled.value
+
+                override fun isToggleEnabled(
+                    viewModel: MainViewModel,
+                    context: Context,
+                ) = viewModel.isWriteSecureSettingsEnabled.value ||
+                    viewModel.isShizukuPermissionGranted.value ||
+                    viewModel.isRootPermissionGranted.value
+
+                override fun onToggle(
+                    viewModel: MainViewModel,
+                    context: Context,
+                    enabled: Boolean,
+                ) {
+                    viewModel.setPixelSearchbarEnabled(enabled, context)
+                }
+
+                override fun onClick(
+                    context: Context,
+                    viewModel: MainViewModel,
+                ) {
+                    context.startActivity(Intent(context, PixelSearchbarSettingsActivity::class.java))
+                }
+
+                override fun isDeviceSupported(context: Context) = DeviceUtils.isGoogleDevice()
             },
             object : Feature(
                 id = "Statusbar icons",

@@ -49,5 +49,8 @@ data class Automation(
 
         @SerializedName("ACCESSIBILITY_SHORTCUT_3")
         ACCESSIBILITY_SHORTCUT_3,
+
+        @SerializedName("PIXEL_SEARCHBAR")
+        PIXEL_SEARCHBAR,
     }
 }

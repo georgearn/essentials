@@ -219,6 +219,7 @@ fun AutomationItem(
                             Automation.Type.ACCESSIBILITY_SHORTCUT_1 -> R.drawable.rounded_circle_24
                             Automation.Type.ACCESSIBILITY_SHORTCUT_2 -> R.drawable.rounded_pentagon_24
                             Automation.Type.ACCESSIBILITY_SHORTCUT_3 -> R.drawable.rounded_square_24
+                            Automation.Type.PIXEL_SEARCHBAR -> R.drawable.rounded_search_24
                             Automation.Type.STATE -> automation.state?.icon
                             Automation.Type.APP -> R.drawable.rounded_apps_24
                         }
@@ -237,6 +238,7 @@ fun AutomationItem(
                             Automation.Type.ACCESSIBILITY_SHORTCUT_1 -> stringResource(R.string.diy_create_accessibility_shortcut_1_title)
                             Automation.Type.ACCESSIBILITY_SHORTCUT_2 -> stringResource(R.string.diy_create_accessibility_shortcut_2_title)
                             Automation.Type.ACCESSIBILITY_SHORTCUT_3 -> stringResource(R.string.diy_create_accessibility_shortcut_3_title)
+                            Automation.Type.PIXEL_SEARCHBAR -> stringResource(R.string.diy_create_pixel_searchbar_title)
                             Automation.Type.STATE -> automation.state?.title?.let { stringResource(it) }
                             Automation.Type.APP -> stringResource(R.string.diy_create_app_title) + " (${automation.selectedApps.size})"
                         }
@@ -292,7 +294,8 @@ fun AutomationItem(
                     automation.type == Automation.Type.ACCESSIBILITY_SHORTCUT ||
                     automation.type == Automation.Type.ACCESSIBILITY_SHORTCUT_1 ||
                     automation.type == Automation.Type.ACCESSIBILITY_SHORTCUT_2 ||
-                    automation.type == Automation.Type.ACCESSIBILITY_SHORTCUT_3
+                    automation.type == Automation.Type.ACCESSIBILITY_SHORTCUT_3 ||
+                    automation.type == Automation.Type.PIXEL_SEARCHBAR
                 ) {
                     // Separator Icon
                     Box(
@@ -366,7 +369,8 @@ fun AutomationItem(
                         automation.type == Automation.Type.ACCESSIBILITY_SHORTCUT ||
                         automation.type == Automation.Type.ACCESSIBILITY_SHORTCUT_1 ||
                         automation.type == Automation.Type.ACCESSIBILITY_SHORTCUT_2 ||
-                        automation.type == Automation.Type.ACCESSIBILITY_SHORTCUT_3
+                        automation.type == Automation.Type.ACCESSIBILITY_SHORTCUT_3 ||
+                        automation.type == Automation.Type.PIXEL_SEARCHBAR
                     ) {
                         automation.actions.forEach { action ->
                             ActionItem(action = action)

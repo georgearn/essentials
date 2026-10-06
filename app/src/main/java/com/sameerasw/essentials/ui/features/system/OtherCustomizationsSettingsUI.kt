@@ -43,6 +43,7 @@ enum class PermissionModule {
     SHOW_ON_LAUNCHER,
     CIRCLE_TO_SEARCH,
     DISABLE_ROTATION_SUGGESTION,
+    PIXEL_SEARCHBAR,
     PREFER_GPU_COMPOSING,
     ALLOW_OVERLAYS_IN_SETTINGS,
     TRANSPARENT_NAVIGATION_BAR,
@@ -149,6 +150,7 @@ fun OtherCustomizationsSettingsUI(
 
                 PermissionModule.CIRCLE_TO_SEARCH -> listOf(shizukuPermission, accessibilityPermission)
                 PermissionModule.DISABLE_ROTATION_SUGGESTION -> listOf(shizukuPermission)
+                PermissionModule.PIXEL_SEARCHBAR -> listOf(shizukuPermission)
                 PermissionModule.PREFER_GPU_COMPOSING -> listOf(shizukuPermission)
                 PermissionModule.ALLOW_OVERLAYS_IN_SETTINGS -> listOf(shizukuPermission)
                 PermissionModule.TRANSPARENT_NAVIGATION_BAR -> listOf(shizukuPermission)

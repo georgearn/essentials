@@ -273,6 +273,12 @@ sealed interface Action {
     }
 
     @Keep
+    data object EssentialSearch : Action {
+        override val title: Int = R.string.essential_search_label
+        override val icon: Int = R.drawable.rounded_search_24
+    }
+
+    @Keep
     data class SometimesEssentials(
         @SerializedName("changeBatteryNotification") val changeBatteryNotification: Boolean = false,
         @SerializedName("batteryNotificationEnabled") val batteryNotificationEnabled: Boolean = true,

@@ -597,6 +597,9 @@ class FeatureSettingsActivity : AppCompatActivity() {
                                                 "Widgets" ->
                                                     listOf(
                                                         listOf(
+                                                            "Pixel Searchbar",
+                                                        ),
+                                                        listOf(
                                                             "Screen off widget",
                                                             "Batteries",
                                                         ),

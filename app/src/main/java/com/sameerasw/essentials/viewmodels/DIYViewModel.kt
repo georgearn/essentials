@@ -244,6 +244,7 @@ class DIYViewModel(
                     "LikeCurrentSong" -> Action.LikeCurrentSong
                     "OpenNowPlayingApp" -> Action.OpenNowPlayingApp
                     "CircleToSearch" -> Action.CircleToSearch
+                    "EssentialSearch" -> Action.EssentialSearch
                     "PinApp" -> Action.PinApp
                     "SometimesEssentials" ->
                         Action.SometimesEssentials(

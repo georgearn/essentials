@@ -172,6 +172,7 @@ class AutomationEditorActivity : ComponentActivity() {
                 Automation.Type.ACCESSIBILITY_SHORTCUT_1,
                 Automation.Type.ACCESSIBILITY_SHORTCUT_2,
                 Automation.Type.ACCESSIBILITY_SHORTCUT_3 -> if (isEditMode) R.string.diy_editor_edit_title else R.string.diy_editor_new_title
+                Automation.Type.PIXEL_SEARCHBAR -> if (isEditMode) R.string.diy_editor_edit_title else R.string.diy_editor_new_title
                 Automation.Type.STATE -> if (isEditMode) R.string.diy_editor_edit_title else R.string.diy_editor_new_title
                 Automation.Type.APP -> if (isEditMode) R.string.diy_editor_edit_title else R.string.diy_create_app_title
             }
@@ -397,7 +398,8 @@ class AutomationEditorActivity : ComponentActivity() {
                         Automation.Type.ACCESSIBILITY_SHORTCUT,
                         Automation.Type.ACCESSIBILITY_SHORTCUT_1,
                         Automation.Type.ACCESSIBILITY_SHORTCUT_2,
-                        Automation.Type.ACCESSIBILITY_SHORTCUT_3 ->
+                        Automation.Type.ACCESSIBILITY_SHORTCUT_3,
+                        Automation.Type.PIXEL_SEARCHBAR ->
                             selectedAction != null &&
                                 isActionConfigured(
                                     selectedAction,
@@ -503,7 +505,8 @@ class AutomationEditorActivity : ComponentActivity() {
                             Automation.Type.ACCESSIBILITY_SHORTCUT,
                             Automation.Type.ACCESSIBILITY_SHORTCUT_1,
                             Automation.Type.ACCESSIBILITY_SHORTCUT_2,
-                            Automation.Type.ACCESSIBILITY_SHORTCUT_3 ->
+                            Automation.Type.ACCESSIBILITY_SHORTCUT_3,
+                            Automation.Type.PIXEL_SEARCHBAR ->
                                 listOfNotNull(
                                     selectedAction,
                                 )
@@ -553,7 +556,8 @@ class AutomationEditorActivity : ComponentActivity() {
                                 )
                             if (isEditMode) DIYRepository.updateAutomation(newAutomation) else DIYRepository.addAutomation(newAutomation)
                         } else if (
-                            automationType == Automation.Type.ACTION_SHORTCUT
+                            automationType == Automation.Type.ACTION_SHORTCUT ||
+                            automationType == Automation.Type.PIXEL_SEARCHBAR
                         ) {
                             val newAutomation =
                                 Automation(
@@ -881,7 +885,8 @@ class AutomationEditorActivity : ComponentActivity() {
                                                 )
                                             }
                                         } else if (
-                                            automationType == Automation.Type.ACTION_SHORTCUT
+                                            automationType == Automation.Type.ACTION_SHORTCUT ||
+                                            automationType == Automation.Type.PIXEL_SEARCHBAR
                                         ) {
                                             val triggerScrollState = rememberScrollState()
                                             Column(
@@ -905,10 +910,12 @@ class AutomationEditorActivity : ComponentActivity() {
                                                 RoundedCardContainer(spacing = 2.dp) {
                                                     val editorTitle =
                                                         when (automationType) {
+                                                            Automation.Type.PIXEL_SEARCHBAR -> stringResource(R.string.diy_create_pixel_searchbar_title)
                                                             else -> stringResource(R.string.diy_create_action_shortcut_title)
                                                         }
                                                     val editorIcon =
                                                         when (automationType) {
+                                                            Automation.Type.PIXEL_SEARCHBAR -> R.drawable.rounded_search_24
                                                             else -> R.drawable.rounded_rocket_launch_24
                                                         }
                                                     EditorActionItem(
@@ -1208,7 +1215,8 @@ class AutomationEditorActivity : ComponentActivity() {
                                                     Automation.Type.ACCESSIBILITY_SHORTCUT,
                                                     Automation.Type.ACCESSIBILITY_SHORTCUT_1,
                                                     Automation.Type.ACCESSIBILITY_SHORTCUT_2,
-                                                    Automation.Type.ACCESSIBILITY_SHORTCUT_3 -> selectedAction
+                                                    Automation.Type.ACCESSIBILITY_SHORTCUT_3,
+                                                    Automation.Type.PIXEL_SEARCHBAR -> selectedAction
                                                     Automation.Type.STATE ->
                                                         if (selectedActionTab ==
                                                             0
@@ -1240,7 +1248,8 @@ class AutomationEditorActivity : ComponentActivity() {
                                                             Automation.Type.ACCESSIBILITY_SHORTCUT,
                                                             Automation.Type.ACCESSIBILITY_SHORTCUT_1,
                                                             Automation.Type.ACCESSIBILITY_SHORTCUT_2,
-                                                            Automation.Type.ACCESSIBILITY_SHORTCUT_3 ->
+                                                            Automation.Type.ACCESSIBILITY_SHORTCUT_3,
+                                                            Automation.Type.PIXEL_SEARCHBAR ->
                                                                 selectedAction =
                                                                     null
                                                             Automation.Type.STATE, Automation.Type.APP -> {
@@ -1309,7 +1318,8 @@ class AutomationEditorActivity : ComponentActivity() {
                                                                     Automation.Type.ACCESSIBILITY_SHORTCUT,
                                                                     Automation.Type.ACCESSIBILITY_SHORTCUT_1,
                                                                     Automation.Type.ACCESSIBILITY_SHORTCUT_2,
-                                                                    Automation.Type.ACCESSIBILITY_SHORTCUT_3 ->
+                                                                    Automation.Type.ACCESSIBILITY_SHORTCUT_3,
+                                                                    Automation.Type.PIXEL_SEARCHBAR ->
                                                                         selectedAction =
                                                                             resolvedAction
                                                                     Automation.Type.STATE, Automation.Type.APP -> {
@@ -1492,7 +1502,8 @@ class AutomationEditorActivity : ComponentActivity() {
                                             Automation.Type.ACCESSIBILITY_SHORTCUT,
                                             Automation.Type.ACCESSIBILITY_SHORTCUT_1,
                                             Automation.Type.ACCESSIBILITY_SHORTCUT_2,
-                                            Automation.Type.ACCESSIBILITY_SHORTCUT_3 ->
+                                            Automation.Type.ACCESSIBILITY_SHORTCUT_3,
+                                            Automation.Type.PIXEL_SEARCHBAR ->
                                                 selectedAction =
                                                     newAction
 
@@ -1521,7 +1532,8 @@ class AutomationEditorActivity : ComponentActivity() {
                                             Automation.Type.ACCESSIBILITY_SHORTCUT,
                                             Automation.Type.ACCESSIBILITY_SHORTCUT_1,
                                             Automation.Type.ACCESSIBILITY_SHORTCUT_2,
-                                            Automation.Type.ACCESSIBILITY_SHORTCUT_3 ->
+                                            Automation.Type.ACCESSIBILITY_SHORTCUT_3,
+                                            Automation.Type.PIXEL_SEARCHBAR ->
                                                 selectedAction =
                                                     newAction
 
@@ -1550,7 +1562,8 @@ class AutomationEditorActivity : ComponentActivity() {
                                             Automation.Type.ACCESSIBILITY_SHORTCUT,
                                             Automation.Type.ACCESSIBILITY_SHORTCUT_1,
                                             Automation.Type.ACCESSIBILITY_SHORTCUT_2,
-                                            Automation.Type.ACCESSIBILITY_SHORTCUT_3 ->
+                                            Automation.Type.ACCESSIBILITY_SHORTCUT_3,
+                                            Automation.Type.PIXEL_SEARCHBAR ->
                                                 selectedAction =
                                                     newAction
 
@@ -1579,7 +1592,8 @@ class AutomationEditorActivity : ComponentActivity() {
                                             Automation.Type.ACCESSIBILITY_SHORTCUT,
                                             Automation.Type.ACCESSIBILITY_SHORTCUT_1,
                                             Automation.Type.ACCESSIBILITY_SHORTCUT_2,
-                                            Automation.Type.ACCESSIBILITY_SHORTCUT_3 ->
+                                            Automation.Type.ACCESSIBILITY_SHORTCUT_3,
+                                            Automation.Type.PIXEL_SEARCHBAR ->
                                                 selectedAction =
                                                     newAction
 
@@ -1607,7 +1621,8 @@ class AutomationEditorActivity : ComponentActivity() {
                                             Automation.Type.ACCESSIBILITY_SHORTCUT,
                                             Automation.Type.ACCESSIBILITY_SHORTCUT_1,
                                             Automation.Type.ACCESSIBILITY_SHORTCUT_2,
-                                            Automation.Type.ACCESSIBILITY_SHORTCUT_3 ->
+                                            Automation.Type.ACCESSIBILITY_SHORTCUT_3,
+                                            Automation.Type.PIXEL_SEARCHBAR ->
                                                 selectedAction =
                                                     newAction
 
@@ -1635,7 +1650,8 @@ class AutomationEditorActivity : ComponentActivity() {
                                             Automation.Type.ACCESSIBILITY_SHORTCUT,
                                             Automation.Type.ACCESSIBILITY_SHORTCUT_1,
                                             Automation.Type.ACCESSIBILITY_SHORTCUT_2,
-                                            Automation.Type.ACCESSIBILITY_SHORTCUT_3 ->
+                                            Automation.Type.ACCESSIBILITY_SHORTCUT_3,
+                                            Automation.Type.PIXEL_SEARCHBAR ->
                                                 selectedAction =
                                                     newAction
 
@@ -1663,7 +1679,8 @@ class AutomationEditorActivity : ComponentActivity() {
                                             Automation.Type.ACCESSIBILITY_SHORTCUT,
                                             Automation.Type.ACCESSIBILITY_SHORTCUT_1,
                                             Automation.Type.ACCESSIBILITY_SHORTCUT_2,
-                                            Automation.Type.ACCESSIBILITY_SHORTCUT_3 ->
+                                            Automation.Type.ACCESSIBILITY_SHORTCUT_3,
+                                            Automation.Type.PIXEL_SEARCHBAR ->
                                                 selectedAction =
                                                     newAction
 
@@ -1692,7 +1709,8 @@ class AutomationEditorActivity : ComponentActivity() {
                                             Automation.Type.ACCESSIBILITY_SHORTCUT,
                                             Automation.Type.ACCESSIBILITY_SHORTCUT_1,
                                             Automation.Type.ACCESSIBILITY_SHORTCUT_2,
-                                            Automation.Type.ACCESSIBILITY_SHORTCUT_3 ->
+                                            Automation.Type.ACCESSIBILITY_SHORTCUT_3,
+                                            Automation.Type.PIXEL_SEARCHBAR ->
                                                 selectedAction =
                                                     newAction
 
@@ -1728,7 +1746,8 @@ class AutomationEditorActivity : ComponentActivity() {
                                             Automation.Type.ACCESSIBILITY_SHORTCUT,
                                             Automation.Type.ACCESSIBILITY_SHORTCUT_1,
                                             Automation.Type.ACCESSIBILITY_SHORTCUT_2,
-                                            Automation.Type.ACCESSIBILITY_SHORTCUT_3 ->
+                                            Automation.Type.ACCESSIBILITY_SHORTCUT_3,
+                                            Automation.Type.PIXEL_SEARCHBAR ->
                                                 selectedAction =
                                                     newAction
 
@@ -1757,7 +1776,8 @@ class AutomationEditorActivity : ComponentActivity() {
                                             Automation.Type.ACCESSIBILITY_SHORTCUT,
                                             Automation.Type.ACCESSIBILITY_SHORTCUT_1,
                                             Automation.Type.ACCESSIBILITY_SHORTCUT_2,
-                                            Automation.Type.ACCESSIBILITY_SHORTCUT_3 ->
+                                            Automation.Type.ACCESSIBILITY_SHORTCUT_3,
+                                            Automation.Type.PIXEL_SEARCHBAR ->
                                                 selectedAction =
                                                     newAction
 
@@ -1792,7 +1812,8 @@ class AutomationEditorActivity : ComponentActivity() {
                                                 Automation.Type.ACCESSIBILITY_SHORTCUT,
                                                 Automation.Type.ACCESSIBILITY_SHORTCUT_1,
                                                 Automation.Type.ACCESSIBILITY_SHORTCUT_2,
-                                                Automation.Type.ACCESSIBILITY_SHORTCUT_3 ->
+                                                Automation.Type.ACCESSIBILITY_SHORTCUT_3,
+                                                Automation.Type.PIXEL_SEARCHBAR ->
                                                     selectedAction =
                                                         finalAction
                                                 Automation.Type.STATE, Automation.Type.APP -> {
@@ -1827,7 +1848,8 @@ class AutomationEditorActivity : ComponentActivity() {
                                             Automation.Type.ACCESSIBILITY_SHORTCUT,
                                             Automation.Type.ACCESSIBILITY_SHORTCUT_1,
                                             Automation.Type.ACCESSIBILITY_SHORTCUT_2,
-                                            Automation.Type.ACCESSIBILITY_SHORTCUT_3 ->
+                                            Automation.Type.ACCESSIBILITY_SHORTCUT_3,
+                                            Automation.Type.PIXEL_SEARCHBAR ->
                                                 selectedAction =
                                                     Action.Keyboard(newIme)
 
@@ -1857,7 +1879,8 @@ class AutomationEditorActivity : ComponentActivity() {
                                             Automation.Type.ACCESSIBILITY_SHORTCUT,
                                             Automation.Type.ACCESSIBILITY_SHORTCUT_1,
                                             Automation.Type.ACCESSIBILITY_SHORTCUT_2,
-                                            Automation.Type.ACCESSIBILITY_SHORTCUT_3 ->
+                                            Automation.Type.ACCESSIBILITY_SHORTCUT_3,
+                                            Automation.Type.PIXEL_SEARCHBAR ->
                                                 selectedAction =
                                                     newAction
 

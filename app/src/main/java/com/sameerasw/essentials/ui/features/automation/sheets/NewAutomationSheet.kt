@@ -75,6 +75,11 @@ fun NewAutomationSheet(
         }
     }
 
+    val isPixelSearchbarEnabled =
+        remember(context) {
+            SettingsRepository(context).getBoolean(SettingsRepository.KEY_PIXEL_SEARCHBAR, false)
+        }
+
     val hasActionShortcut =
         remember {
             DIYRepository.automations.value.any {
@@ -103,6 +108,13 @@ fun NewAutomationSheet(
         }.toSet()
         usedSlots.contains(1) && usedSlots.contains(2) && usedSlots.contains(3)
     }
+
+    val hasPixelSearchbar =
+        remember {
+            DIYRepository.automations.value.any {
+                it.type == Automation.Type.PIXEL_SEARCHBAR
+            }
+        }
 
     EssentialsBottomSheet(
         onDismissRequest = onDismiss,
@@ -206,6 +218,16 @@ fun NewAutomationSheet(
                     },
                 )
 
+                // Pixel Searchbar Tap Option
+                if (isPixelSearchbarEnabled) {
+                    AutomationTypeOption(
+                        title = stringResource(R.string.diy_create_pixel_searchbar_title),
+                        description = stringResource(R.string.diy_create_pixel_searchbar_desc),
+                        iconRes = R.drawable.rounded_search_24,
+                        enabled = !hasPixelSearchbar,
+                        onClick = { onOptionSelected(Automation.Type.PIXEL_SEARCHBAR) },
+                    )
+                }
             }
         }
     }

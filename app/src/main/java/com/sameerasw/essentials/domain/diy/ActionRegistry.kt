@@ -99,6 +99,7 @@ object ActionRegistry {
             listOf(
                 Action.SometimesEssentials(),
                 Action.OverlayControl(),
+                Action.EssentialSearch,
             )
 
         return listOf(
