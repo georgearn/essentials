@@ -50,12 +50,10 @@ object PermissionRegistry {
 fun initPermissionRegistry() {
     // Accessibility permission
     PermissionRegistry.register("ACCESSIBILITY", R.string.feat_screen_off_widget_title)
-    PermissionRegistry.register("ACCESSIBILITY", R.string.feat_notification_lighting_title)
     PermissionRegistry.register("ACCESSIBILITY", R.string.feat_dynamic_night_light_title)
     PermissionRegistry.register("ACCESSIBILITY", R.string.feat_app_lock_title)
     PermissionRegistry.register("ACCESSIBILITY", R.string.feat_essentials_on_display_title)
     PermissionRegistry.register("ACCESSIBILITY", R.string.feat_aod_wallpaper_title)
-    PermissionRegistry.register("ACCESSIBILITY", R.string.duo_title)
     PermissionRegistry.register("ACCESSIBILITY", R.string.feat_status_glance_title)
     PermissionRegistry.register("READ_CALENDAR", R.string.feat_status_glance_title)
     PermissionRegistry.register("ACCESSIBILITY", R.string.feat_conscious_gate_title)
@@ -84,7 +82,6 @@ fun initPermissionRegistry() {
 
     // Shizuku permission
     PermissionRegistry.register("SHIZUKU", R.string.feat_freeze_title)
-    PermissionRegistry.register("SHIZUKU", R.string.feat_maps_power_saving_title)
     PermissionRegistry.register("SHIZUKU", R.string.feat_screen_locked_security_title)
     PermissionRegistry.register("SHIZUKU", R.string.feat_screen_refresh_rate_title)
     PermissionRegistry.register("SHIZUKU", R.string.tile_refresh_rate)
@@ -93,7 +90,6 @@ fun initPermissionRegistry() {
     PermissionRegistry.register("SHIZUKU", R.string.feat_sim_names_title)
     PermissionRegistry.register("SHIZUKU", R.string.feat_transparent_navigation_bar_title)
     PermissionRegistry.register("SHIZUKU", R.string.feat_standby_apps_title)
-    PermissionRegistry.register("SHIZUKU", R.string.island_dynamic_hide_status_bar_title)
     PermissionRegistry.register("USAGE_STATS", R.string.feat_freeze_title)
     PermissionRegistry.register("USAGE_STATS", R.string.feat_app_lock_title)
     PermissionRegistry.register("USAGE_STATS", R.string.feat_dynamic_night_light_title)
@@ -101,23 +97,18 @@ fun initPermissionRegistry() {
     PermissionRegistry.register("NOTIFICATION_LISTENER", R.string.feat_freeze_title)
 
     // Root permission
-    PermissionRegistry.register("ROOT", R.string.feat_maps_power_saving_title)
     PermissionRegistry.register("ROOT", R.string.feat_freeze_title)
     PermissionRegistry.register("ROOT", R.string.feat_button_remap_title)
     PermissionRegistry.register("ROOT", R.string.feat_prefer_gpu_composing_title)
     PermissionRegistry.register("ROOT", R.string.feat_transparent_navigation_bar_title)
     PermissionRegistry.register("ROOT", R.string.feat_standby_apps_title)
     PermissionRegistry.register("ROOT", R.string.feat_screen_locked_security_title)
-    PermissionRegistry.register("ROOT", R.string.island_dynamic_hide_status_bar_title)
     PermissionRegistry.register("ROOT", R.string.feat_prefer_gpu_composing_title)
 
     // Notification listener permission
-    PermissionRegistry.register("NOTIFICATION_LISTENER", R.string.feat_maps_power_saving_title)
-    PermissionRegistry.register("NOTIFICATION_LISTENER", R.string.feat_notification_lighting_title)
     PermissionRegistry.register("NOTIFICATION_LISTENER", R.string.feat_call_vibrations_title)
     PermissionRegistry.register("NOTIFICATION_LISTENER", R.string.feat_essentials_on_display_title)
     PermissionRegistry.register("NOTIFICATION_LISTENER", R.string.feat_aod_wallpaper_use_album_art)
-    PermissionRegistry.register("NOTIFICATION_LISTENER", R.string.duo_title)
     PermissionRegistry.register("NOTIFICATION_LISTENER", R.string.feat_status_glance_title)
 
     // Bluetooth permissions
@@ -127,7 +118,6 @@ fun initPermissionRegistry() {
     PermissionRegistry.register("BLUETOOTH_SCAN", R.string.feat_battery_notification_title)
 
     // Draw over other apps permission
-    PermissionRegistry.register("DRAW_OVER_OTHER_APPS", R.string.feat_notification_lighting_title)
 
     // Post notifications permission
     PermissionRegistry.register("POST_NOTIFICATIONS", R.string.feat_caffeinate_title)
@@ -141,10 +131,7 @@ fun initPermissionRegistry() {
     // Device Admin permission
 
     // Location permission
-    PermissionRegistry.register("LOCATION", R.string.feat_location_reached_title)
     PermissionRegistry.register("OVERCAST_WEATHER", R.string.lock_screen_clock_weather)
-    PermissionRegistry.register("BACKGROUND_LOCATION", R.string.feat_location_reached_title)
-    PermissionRegistry.register("USE_FULL_SCREEN_INTENT", R.string.feat_location_reached_title)
 
     // Battery optimization permission
     PermissionRegistry.register("BATTERY_OPTIMIZATION", R.string.feat_caffeinate_title)
@@ -153,7 +140,6 @@ fun initPermissionRegistry() {
     PermissionRegistry.register("WRITE_SETTINGS", R.string.feat_qs_tiles_title)
 
     // Calendar sync permission
-    PermissionRegistry.register("READ_CALENDAR", R.string.feat_calendar_sync_title)
 
     // Notification policy permission
     PermissionRegistry.register("NOTIFICATION_POLICY", R.string.feat_sound_modes_title)
@@ -173,15 +159,6 @@ fun initPermissionRegistry() {
     PermissionRegistry.register("WRITE_SECURE_SETTINGS", R.string.feat_safe_volume_title)
 
     // Install unknown packages feature
-    // Watch Call Sync & Notification Sync
-    PermissionRegistry.register("READ_PHONE_STATE", R.string.watch_call_sync_title)
-    PermissionRegistry.register("READ_PHONE_STATE", R.string.island_title)
-    PermissionRegistry.register("ANSWER_PHONE_CALLS", R.string.island_title)
-    PermissionRegistry.register("READ_CONTACTS", R.string.island_title)
-    PermissionRegistry.register("ANSWER_PHONE_CALLS", R.string.watch_call_sync_title)
-    PermissionRegistry.register("READ_CONTACTS", R.string.watch_call_sync_title)
-    PermissionRegistry.register("READ_CALL_LOG", R.string.watch_call_sync_title)
-    PermissionRegistry.register("NOTIFICATION_LISTENER", R.string.watch_notif_sync_title)
 
     // DIY Automations feature
     PermissionRegistry.register("WRITE_SECURE_SETTINGS", R.string.tab_diy)
@@ -189,10 +166,6 @@ fun initPermissionRegistry() {
 
     // AOD Wallpaper feature
     PermissionRegistry.register("STORAGE", R.string.feat_aod_wallpaper_title)
-
-    // Pixel Search features
-    PermissionRegistry.register("STORAGE", R.string.pixel_search_results_files_title)
-    PermissionRegistry.register("READ_CONTACTS", R.string.pixel_search_results_contacts_title)
 
     // Floating Bubbles preview
     PermissionRegistry.register("NOTIFICATION_BUBBLES", R.string.preview_web_title)

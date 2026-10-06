@@ -1267,7 +1267,6 @@ fun SetupFeatures(
                             "Notifications",
                             "Sound",
                             "Display",
-                            "Maps power saving mode",
                             "Daily Wallpaper",
                             "Widgets",
                         ),
@@ -1275,14 +1274,12 @@ fun SetupFeatures(
                             "Input",
                             "Power and battery",
                             "Quick settings tiles",
-                            "Watch",
                         ),
                         listOf(
                             "Security",
                             "Networks",
                         ),
                         listOf(
-                            "Location reached",
                             "Watermark",
                         ),
                     )
