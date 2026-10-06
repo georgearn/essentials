@@ -329,17 +329,7 @@
             android:taskAffinity=""
             android:theme="@style/Theme.Essentials.Translucent"></activity>
 
-        <activity
-            android:name=".ui.activities.LocationAlarmActivity"
-            android:exported="true"
-            android:launchMode="singleInstance"
-            android:theme="@style/Theme.Essentials.FullScreenAlarm" />
 
-        <activity
-            android:name=".ui.activities.TravelCompassActivity"
-            android:exported="false"
-            android:launchMode="singleTop"
-            android:theme="@style/Theme.Essentials" />
 
 
         <activity
@@ -362,11 +352,6 @@
             android:theme="@style/Theme.Essentials" />
 
 
-        <service
-            android:name=".services.LocationReachedService"
-            android:enabled="true"
-            android:exported="false"
-            android:foregroundServiceType="location" />
 
         <activity
             android:name=".ui.activities.AppFreezingActivity"
@@ -553,13 +538,6 @@
             android:taskAffinity=""
             android:theme="@style/Theme.Essentials.Translucent" />
 
-        <activity
-            android:name=".ui.activities.RipplePositionPickerActivity"
-            android:excludeFromRecents="true"
-            android:exported="false"
-            android:noHistory="true"
-            android:taskAffinity=""
-            android:theme="@style/Theme.Essentials.Translucent" />
 
         <activity
             android:name=".ui.activities.SmartPixelsIntensityActivity"
@@ -982,14 +960,6 @@
                 android:value="android.service.quicksettings.CATEGORY_DISPLAY" />
         </service>
 
-        <service
-            android:name=".services.tiles.NotificationLightingTileService"
-            android:exported="true"
-            android:icon="@drawable/rounded_blur_linear_24"
-            android:label="Notification Lighting"
-            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
-            <intent-filter>
-                <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
             <meta-data
                 android:name="android.service.quicksettings.TILE_CATEGORY"
@@ -1022,14 +992,6 @@
                 android:name="android.service.quicksettings.TILE_CATEGORY"
                 android:value="android.service.quicksettings.CATEGORY_DISPLAY" />
         </service>
-        <service
-            android:name=".services.tiles.IslandTileService"
-            android:exported="true"
-            android:icon="@drawable/rounded_upcoming_24"
-            android:label="@string/island_title"
-            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
-            <intent-filter>
-                <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
             <meta-data
                 android:name="android.service.quicksettings.TILE_CATEGORY"
@@ -1088,10 +1050,6 @@
                 android:value="android.service.quicksettings.CATEGORY_PRIVACY" />
         </service>
 
-        <service
-            android:name=".services.NotificationLightingService"
-            android:exported="false"
-            android:foregroundServiceType="specialUse" />
 
         <service
             android:name=".ime.EssentialsInputMethodService"
@@ -1150,14 +1108,6 @@
                 android:value="android.service.quicksettings.CATEGORY_UTILITIES" />
         </service>
 
-        <service
-            android:name=".services.tiles.FlashlightPulseTileService"
-            android:exported="true"
-            android:icon="@drawable/outline_backlight_high_24"
-            android:label="@string/flashlight_pulse_tile_label"
-            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
-            <intent-filter>
-                <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
             <meta-data
                 android:name="android.service.quicksettings.TILE_CATEGORY"
@@ -1251,14 +1201,6 @@
                 android:value="android.service.quicksettings.CATEGORY_CONNECTIVITY" />
         </service>
 
-        <service
-            android:name=".services.tiles.MapsPowerSavingTileService"
-            android:exported="true"
-            android:icon="@drawable/rounded_navigation_24"
-            android:label="@string/tile_maps_power_saving"
-            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
-            <intent-filter>
-                <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
             <meta-data
                 android:name="android.service.quicksettings.TILE_CATEGORY"

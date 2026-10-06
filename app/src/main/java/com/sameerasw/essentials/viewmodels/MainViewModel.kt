@@ -69,7 +69,6 @@ import com.sameerasw.essentials.domain.model.UpdateInfo
 import com.sameerasw.essentials.domain.registry.SearchRegistry
 import com.sameerasw.essentials.services.AppUpdateWorker
 import com.sameerasw.essentials.services.CaffeinateWakeLockService
-import com.sameerasw.essentials.services.NotificationLightingService
 import com.sameerasw.essentials.services.receivers.FlashlightActionReceiver
 import com.sameerasw.essentials.services.receivers.SecurityDeviceAdminReceiver
 import com.sameerasw.essentials.services.receivers.SecurityReceiver
@@ -86,7 +85,6 @@ import com.sameerasw.essentials.utils.ShizukuUtils
 import com.sameerasw.essentials.utils.SurfaceFlingerControl
 import com.sameerasw.essentials.utils.TestNotificationUtil
 import com.sameerasw.essentials.utils.UpdateNotificationHelper
-import com.sameerasw.essentials.island.service.IslandStatusBarHider
 import com.sameerasw.essentials.utils.overlay.writeTo
 import com.sameerasw.essentials.viewmodels.state.DashSettings
 import com.sameerasw.essentials.viewmodels.state.RippleSettings
@@ -5502,9 +5500,6 @@ class MainViewModel : ViewModel() {
             SettingsRepository.KEY_ISLAND_DYNAMIC_HIDE_STATUS_BAR,
             enabled,
         )
-        if (!enabled) {
-            IslandStatusBarHider.restore(context)
-        }
     }
 
     fun setIslandHideWhenScreenOff(enabled: Boolean) {
@@ -6728,29 +6723,6 @@ class MainViewModel : ViewModel() {
         )
     }
 
-    /**
-     * Executes the set calendar sync enabled operation.
-     *
-     * @param enabled [Boolean] Target enabled.
-     * @param context [Context] Target context.
-     */
-    fun setCalendarSyncEnabled(
-        enabled: Boolean,
-        context: Context,
-    ) {
-        isCalendarSyncEnabled.value = enabled
-        settingsRepository.putBoolean(SettingsRepository.KEY_CALENDAR_SYNC_ENABLED, enabled)
-        if (enabled) {
-            com.sameerasw.essentials.services.CalendarSyncManager
-                .forceSync(context)
-            if (isCalendarSyncPeriodicEnabled.value) {
-                schedulePeriodicCalendarSync(context)
-            }
-        } else {
-            cancelPeriodicCalendarSync(context)
-        }
-    }
-
     fun setNotificationSyncEnabled(
         enabled: Boolean,
         context: Context,
@@ -6854,56 +6826,6 @@ class MainViewModel : ViewModel() {
                 availableCalendars[index].copy(isSelected = currentIds.contains(idString))
         }
 
-        context?.let {
-            com.sameerasw.essentials.services.CalendarSyncManager.forceSync(it)
-        }
-    }
-
-    /**
-     * Executes the set calendar sync periodic enabled operation.
-     *
-     * @param enabled [Boolean] Target enabled.
-     * @param context [Context] Target context.
-     */
-    fun setCalendarSyncPeriodicEnabled(
-        enabled: Boolean,
-        context: Context,
-    ) {
-        isCalendarSyncPeriodicEnabled.value = enabled
-        settingsRepository.setCalendarSyncPeriodicEnabled(enabled)
-        if (enabled && isCalendarSyncEnabled.value) {
-            schedulePeriodicCalendarSync(context)
-        } else {
-            cancelPeriodicCalendarSync(context)
-        }
-    }
-
-    private fun schedulePeriodicCalendarSync(context: Context) {
-        val workRequest =
-            PeriodicWorkRequestBuilder<com.sameerasw.essentials.services.CalendarSyncWorker>(
-                15,
-                java.util.concurrent.TimeUnit.MINUTES,
-            ).build()
-
-        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-            "calendar_sync_work",
-            ExistingPeriodicWorkPolicy.UPDATE,
-            workRequest,
-        )
-    }
-
-    private fun cancelPeriodicCalendarSync(context: Context) {
-        WorkManager.getInstance(context).cancelUniqueWork("calendar_sync_work")
-    }
-
-    /**
-     * Executes the trigger calendar sync now operation.
-     *
-     * @param context [Context] Target context.
-     */
-    fun triggerCalendarSyncNow(context: Context) {
-        com.sameerasw.essentials.services.CalendarSyncManager
-            .forceSync(context)
     }
 
     /**
@@ -7138,27 +7060,6 @@ class MainViewModel : ViewModel() {
     }
 
     /**
-     * Executes the trigger notification lighting operation.
-     *
-     * @param context [Context] Target context.
-     */
-    fun triggerNotificationLighting(context: Context) {
-        if (notificationLightingStyle.value == NotificationLightingStyle.SYSTEM) {
-            triggerNotificationLightingSystem(context)
-            return
-        }
-        try {
-            val intent =
-                Intent(context, NotificationLightingService::class.java).apply {
-                    addLightingExtras(isPreview = false)
-                }
-            context.startService(intent)
-        } catch (e: Exception) {
-            // ignore
-        }
-    }
-
-    /**
      * Executes the trigger notification lighting system operation.
      *
      * @param context [Context] Target context.
@@ -7193,19 +7094,6 @@ class MainViewModel : ViewModel() {
             }
 
         ShellUtils.runCommand(context, command)
-    }
-
-    // Helper to show the overlay service
-    fun triggerNotificationLightingPreview(context: Context) {
-        try {
-            val intent =
-                Intent(context, NotificationLightingService::class.java).apply {
-                    addLightingExtras(isPreview = true)
-                }
-            context.startService(intent)
-        } catch (e: Exception) {
-            // ignore
-        }
     }
 
     /**
@@ -7259,128 +7147,6 @@ class MainViewModel : ViewModel() {
     fun showImePicker(context: Context) {
         val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.showInputMethodPicker()
-    }
-
-    /**
-     * Executes the trigger notification lighting with radius operation.
-     *
-     * @param context [Context] Target context.
-     * @param cornerRadiusDp [Float] Target corner radius dp.
-     */
-    fun triggerNotificationLightingWithRadius(
-        context: Context,
-        cornerRadiusDp: Float,
-    ) {
-        try {
-            val intent =
-                Intent(context, NotificationLightingService::class.java).apply {
-                    addLightingExtras(cornerRadiusDp = cornerRadiusDp)
-                }
-            context.startService(intent)
-        } catch (e: Exception) {
-            // ignore
-        }
-    }
-
-    fun triggerNotificationLightingWithRadiusAndThickness(
-        context: Context,
-        cornerRadiusDp: Float,
-        strokeThicknessDp: Float,
-    ) {
-        try {
-            val intent =
-                Intent(context, NotificationLightingService::class.java).apply {
-                    addLightingExtras(cornerRadiusDp, strokeThicknessDp)
-                }
-            context.startService(intent)
-        } catch (e: Exception) {
-            // ignore
-        }
-    }
-
-    fun triggerNotificationLightingForIndicator(
-        context: Context,
-        x: Float,
-        y: Float,
-        scale: Float,
-    ) {
-        notificationLightingIndicatorX.value = x
-        notificationLightingIndicatorY.value = y
-        notificationLightingIndicatorScale.value = scale
-
-        try {
-            val intent =
-                Intent(context, NotificationLightingService::class.java).apply {
-                    addLightingExtras(styleOverride = NotificationLightingStyle.INDICATOR)
-                }
-            context.startService(intent)
-        } catch (e: Exception) {
-            // ignore
-        }
-    }
-
-    fun triggerNotificationLightingForDash(context: Context) {
-        try {
-            val intent =
-                Intent(context, NotificationLightingService::class.java).apply {
-                    addLightingExtras(styleOverride = NotificationLightingStyle.DASH)
-                }
-            context.startService(intent)
-        } catch (e: Exception) {
-            // ignore
-        }
-    }
-
-    fun triggerNotificationLightingForRipple(context: Context) {
-        try {
-            val intent =
-                Intent(context, NotificationLightingService::class.java).apply {
-                    addLightingExtras(styleOverride = NotificationLightingStyle.RIPPLE)
-                }
-            context.startService(intent)
-        } catch (e: Exception) {
-            // ignore
-        }
-    }
-
-    fun triggerNotificationLightingForSweep(
-        context: Context,
-        position: NotificationLightingSweepPosition,
-        thickness: Float,
-    ) {
-        notificationLightingSweepPosition.value = position
-        notificationLightingSweepThickness.floatValue = thickness
-
-        try {
-            val intent =
-                Intent(context, NotificationLightingService::class.java).apply {
-                    addLightingExtras(styleOverride = NotificationLightingStyle.SWEEP)
-                }
-            context.startService(intent)
-        } catch (e: Exception) {
-            // ignore
-        }
-    }
-
-    // Helper to remove preview overlay
-    fun removePreviewOverlay(context: Context) {
-        try {
-            val intent1 =
-                Intent(context, NotificationLightingService::class.java).apply {
-                    putExtra("remove_preview", true)
-                }
-            context.startService(intent1)
-
-            // Also remove from ScreenOffAccessibilityService if it's running
-            val intent2 =
-                Intent(context, ScreenOffAccessibilityService::class.java).apply {
-                    action = "SHOW_NOTIFICATION_LIGHTING"
-                    putExtra("remove_preview", true)
-                }
-            context.startService(intent2)
-        } catch (e: Exception) {
-            // ignore
-        }
     }
 
     /**

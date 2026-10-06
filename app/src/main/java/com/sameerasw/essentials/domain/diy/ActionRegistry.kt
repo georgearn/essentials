@@ -98,7 +98,6 @@ object ActionRegistry {
         val essentialsActions =
             listOf(
                 Action.SometimesEssentials(),
-                Action.TriggerNotificationLighting(),
                 Action.OverlayControl(),
                 Action.EssentialSearch,
             )

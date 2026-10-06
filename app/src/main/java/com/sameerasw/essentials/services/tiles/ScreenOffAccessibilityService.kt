@@ -41,8 +41,6 @@ import com.sameerasw.essentials.services.handlers.AppFlowHandler
 import com.sameerasw.essentials.services.handlers.ButtonRemapHandler
 import com.sameerasw.essentials.services.handlers.DuoOverlayHandler
 import com.sameerasw.essentials.services.handlers.FlashlightHandler
-import com.sameerasw.essentials.island.service.IslandCoordinator
-import com.sameerasw.essentials.services.handlers.NotificationLightingHandler
 import com.sameerasw.essentials.services.handlers.OmniGestureOverlayHandler
 import com.sameerasw.essentials.services.handlers.PocketModeHandler
 import com.sameerasw.essentials.services.handlers.StatusBarIconHandler
@@ -65,7 +63,6 @@ class ScreenOffAccessibilityService :
 
     // Handlers
     lateinit var flashlightHandler: FlashlightHandler
-    private lateinit var notificationLightingHandler: NotificationLightingHandler
     private lateinit var buttonRemapHandler: ButtonRemapHandler
     private lateinit var appFlowHandler: AppFlowHandler
     private lateinit var ambientGlanceHandler: AmbientGlanceHandler
@@ -76,7 +73,6 @@ class ScreenOffAccessibilityService :
     private lateinit var pocketModeHandler: PocketModeHandler
     private lateinit var smartPixelsHandler: com.sameerasw.essentials.services.handlers.SmartPixelsHandler
     private lateinit var duoOverlayHandler: DuoOverlayHandler
-    lateinit var islandOverlayHandler: IslandCoordinator
     private lateinit var statusGlanceHandler: StatusGlanceHandler
 
     private var lightSensor: Sensor? = null
@@ -292,7 +288,6 @@ class ScreenOffAccessibilityService :
 
         // Initialize Handlers
         flashlightHandler = FlashlightHandler(this, serviceScope)
-        notificationLightingHandler = NotificationLightingHandler(this)
         buttonRemapHandler = ButtonRemapHandler(this, flashlightHandler)
         appFlowHandler = AppFlowHandler(this, this)
         ambientGlanceHandler = AmbientGlanceHandler(this)
@@ -305,12 +300,6 @@ class ScreenOffAccessibilityService :
             com.sameerasw.essentials.services.handlers
                 .SmartPixelsHandler(this)
         duoOverlayHandler = DuoOverlayHandler(this)
-        islandOverlayHandler = IslandCoordinator(this)
-        islandOverlayHandler.onVisibilityChanged = {
-            duoOverlayHandler.setIslandVisible(it)
-            LiveUpdateSnoozer.onIslandVisibility(this, it)
-        }
-        duoOverlayHandler.openBrief = { islandOverlayHandler.openBrief() }
         statusGlanceHandler = StatusGlanceHandler(this)
 
         flashlightHandler.register()
@@ -334,13 +323,11 @@ class ScreenOffAccessibilityService :
                     when (intent?.action) {
                         Intent.ACTION_SCREEN_ON -> {
                             isScreenOn = true
-                            notificationLightingHandler.onScreenOn()
                             ambientGlanceHandler.dismissImmediately()
                             aodForceTurnOffHandler.removeOverlay()
                             aodWallpaperOverlayHandler.onScreenOn()
                             duoOverlayHandler.onScreenOn()
                             statusGlanceHandler.onScreenOn()
-                            islandOverlayHandler.updateState()
                             freezeHandler.removeCallbacks(freezeRunnable)
                             stopInputEventListener()
                             updateOmniOverlay()
@@ -350,7 +337,6 @@ class ScreenOffAccessibilityService :
                         Intent.ACTION_SCREEN_OFF -> {
                             isScreenOn = false
                             statusGlanceHandler.setShadeExpanded(false)
-                            islandOverlayHandler.setShadeExpanded(false)
                             duoOverlayHandler.setShadeExpanded(false)
                             appFlowHandler.clearAuthenticated()
                             appFlowHandler.clearConsciousGate()
@@ -369,7 +355,6 @@ class ScreenOffAccessibilityService :
                             aodWallpaperOverlayHandler.onUserPresent()
                             statusGlanceHandler.onUserPresent()
                             duoOverlayHandler.onUserPresent()
-                            islandOverlayHandler.updateState()
                             val prefs = getSharedPreferences("essentials_prefs", MODE_PRIVATE)
                             if (prefs.getBoolean("pocket_mode_lock_screen_only", false)) {
                                 pocketModeHandler.onScreenOff() // cancel pending timer + remove overlay
@@ -393,12 +378,10 @@ class ScreenOffAccessibilityService :
 
                         "CONSCIOUS_GATE_CONFIRMED" -> {
                             intent?.getStringExtra("package_name")?.let { appFlowHandler.onConsciousGateConfirmed(it) }
-                            islandOverlayHandler.updateConsciousGateState()
                         }
 
                         "CONSCIOUS_GATE_CLOSED" -> {
                             intent?.getStringExtra("package_name")?.let { appFlowHandler.onConsciousGateClosed(it) }
-                            islandOverlayHandler.updateConsciousGateState()
                         }
 
                         FlashlightActionReceiver.ACTION_TOGGLE,
@@ -474,7 +457,6 @@ class ScreenOffAccessibilityService :
         updateOmniOverlay()
         duoOverlayHandler.restart()
         statusGlanceHandler.restart()
-        islandOverlayHandler.restart()
     }
 
     private fun updateOmniOverlay() {
@@ -504,7 +486,6 @@ class ScreenOffAccessibilityService :
         }
         LiveUpdateSnoozer.release()
         flashlightHandler.unregister()
-        notificationLightingHandler.removeOverlay()
         ambientGlanceHandler.removeOverlay()
         aodForceTurnOffHandler.removeOverlay()
         aodWallpaperOverlayHandler.removeOverlay()
@@ -513,7 +494,6 @@ class ScreenOffAccessibilityService :
         omniGestureOverlayHandler.removeOverlay()
         smartPixelsHandler.destroy()
         duoOverlayHandler.destroy()
-        islandOverlayHandler.onDestroy()
         statusGlanceHandler.destroy()
         statusBarIconHandler.unregister()
         stopInputEventListener()
@@ -557,8 +537,6 @@ class ScreenOffAccessibilityService :
 
         if (detectedPackage != null) {
             appFlowHandler.onPackageChanged(detectedPackage)
-            islandOverlayHandler.onForegroundPackage(detectedPackage)
-            islandOverlayHandler.updateConsciousGateState()
         }
 
         if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED ||
@@ -601,7 +579,6 @@ class ScreenOffAccessibilityService :
                 false
             }
         statusGlanceHandler.setShadeExpanded(expanded)
-        islandOverlayHandler.setShadeExpanded(expanded)
         duoOverlayHandler.setShadeExpanded(expanded)
     }
 
@@ -639,7 +616,6 @@ class ScreenOffAccessibilityService :
                         val isFullscreen = isCoveringFullDisplay && !hasStatusBar
                         duoOverlayHandler.setFullscreen(isFullscreen)
                         statusGlanceHandler.setFullscreen(isFullscreen)
-                        islandOverlayHandler.setFullscreen(isFullscreen)
                     }
                 }
             } catch (_: Exception) {}
@@ -768,7 +744,6 @@ class ScreenOffAccessibilityService :
         super.onConfigurationChanged(newConfig)
         updateOmniOverlay() // Force refresh overlay on rotation
         duoOverlayHandler.onConfigurationChanged(newConfig)
-        islandOverlayHandler.onConfigurationChanged()
         statusGlanceHandler.onConfigurationChanged(newConfig)
         ambientGlanceHandler.onConfigurationChanged()
     }
@@ -885,7 +860,6 @@ class ScreenOffAccessibilityService :
                 performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN)
             }
 
-            "SHOW_NOTIFICATION_LIGHTING" -> notificationLightingHandler.handleIntent(intent)
             "SHOW_AMBIENT_GLANCE" -> ambientGlanceHandler.handleIntent(intent)
             "FORCE_TURN_OFF_AOD" -> aodForceTurnOffHandler.forceTurnOff()
 
@@ -900,14 +874,12 @@ class ScreenOffAccessibilityService :
                 intent
                     .getStringExtra("package_name")
                     ?.let { appFlowHandler.onConsciousGateConfirmed(it) }
-                islandOverlayHandler.updateConsciousGateState()
             }
 
             "CONSCIOUS_GATE_CLOSED" -> {
                 intent
                     .getStringExtra("package_name")
                     ?.let { appFlowHandler.onConsciousGateClosed(it) }
-                islandOverlayHandler.updateConsciousGateState()
                 performGlobalAction(GLOBAL_ACTION_HOME)
             }
 

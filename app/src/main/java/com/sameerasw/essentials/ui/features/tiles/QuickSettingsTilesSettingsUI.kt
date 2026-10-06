@@ -67,13 +67,10 @@ import com.sameerasw.essentials.services.tiles.ChargeQuickTileService
 import com.sameerasw.essentials.services.tiles.DeveloperOptionsTileService
 import com.sameerasw.essentials.services.tiles.DynamicNightLightTileService
 import com.sameerasw.essentials.services.tiles.EssentialsOnDisplayTileService
-import com.sameerasw.essentials.services.tiles.FlashlightPulseTileService
 import com.sameerasw.essentials.services.tiles.FlashlightTileService
 import com.sameerasw.essentials.services.tiles.LockdownTileService
-import com.sameerasw.essentials.services.tiles.MapsPowerSavingTileService
 import com.sameerasw.essentials.services.tiles.MonoAudioTileService
 import com.sameerasw.essentials.services.tiles.NfcTileService
-import com.sameerasw.essentials.services.tiles.NotificationLightingTileService
 import com.sameerasw.essentials.services.tiles.PrivateDnsTileService
 import com.sameerasw.essentials.services.tiles.PrivateNotificationsTileService
 import com.sameerasw.essentials.services.tiles.RefreshRateTileService

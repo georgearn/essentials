@@ -54,10 +54,6 @@ object QsTileRegistry {
                 SoundModeTileService::class.java,
             ),
             QsTileEntry(
-                R.drawable.rounded_blur_linear_24,
-                NotificationLightingTileService::class.java,
-            ),
-            QsTileEntry(
                 R.drawable.rounded_nightlight_24,
                 DynamicNightLightTileService::class.java,
             ),
@@ -82,10 +78,6 @@ object QsTileRegistry {
                 AppFreezingTileService::class.java,
             ),
             QsTileEntry(
-                R.drawable.outline_backlight_high_24,
-                FlashlightPulseTileService::class.java,
-            ),
-            QsTileEntry(
                 R.drawable.rounded_av_timer_24,
                 StayAwakeTileService::class.java,
             ),
@@ -107,10 +99,6 @@ object QsTileRegistry {
             QsTileEntry(
                 R.drawable.rounded_shutter_speed_24,
                 RefreshRateTileService::class.java,
-            ),
-            QsTileEntry(
-                R.drawable.rounded_navigation_24,
-                MapsPowerSavingTileService::class.java,
             ),
             QsTileEntry(
                 R.drawable.rounded_dns_24,
@@ -151,10 +139,6 @@ object QsTileRegistry {
             QsTileEntry(
                 R.drawable.rounded_motion_play_24,
                 DuoTileService::class.java,
-            ),
-            QsTileEntry(
-                R.drawable.rounded_upcoming_24,
-                IslandTileService::class.java,
             ),
         )
 

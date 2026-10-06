@@ -73,7 +73,6 @@ import com.sameerasw.essentials.ui.core.sheets.EssentialsBottomSheet
 import com.sameerasw.essentials.ui.core.sheets.ScreenOffSettingsSheet
 import com.sameerasw.essentials.ui.core.sheets.SingleAppSelectionSheet
 import com.sameerasw.essentials.ui.core.sheets.ChargingModeSettingsSheet
-import com.sameerasw.essentials.ui.core.sheets.NotificationLightingActionSheet
 import com.sameerasw.essentials.ui.core.sheets.OverlayControlSettingsSheet
 import com.sameerasw.essentials.ui.core.sheets.SoundModeSettingsSheet
 import com.sameerasw.essentials.ui.features.apps.sheets.KeyboardSelectionSheet
@@ -104,7 +103,6 @@ fun ButtonRemapSettingsUI(
     var showDeviceEffectsSettings by remember { mutableStateOf(false) }
     var showSoundModeSettings by remember { mutableStateOf(false) }
     var showChargingModeSettings by remember { mutableStateOf(false) }
-    var showNotificationLightingSettings by remember { mutableStateOf(false) }
     var showOverlayControlSettings by remember { mutableStateOf(false) }
     var showSometimesEssentialsSettings by remember { mutableStateOf(false) }
     var showFreezeTagSettings by remember { mutableStateOf(false) }
@@ -231,7 +229,6 @@ fun ButtonRemapSettingsUI(
             is Action.DeviceEffects -> showDeviceEffectsSettings = true
             is Action.SoundMode -> showSoundModeSettings = true
             is Action.SetChargingMode -> showChargingModeSettings = true
-            is Action.TriggerNotificationLighting -> showNotificationLightingSettings = true
             is Action.OverlayControl -> showOverlayControlSettings = true
             is Action.SometimesEssentials -> showSometimesEssentialsSettings = true
             is Action.FreezeTag -> showFreezeTagSettings = true
@@ -702,18 +699,6 @@ fun ButtonRemapSettingsUI(
             onDismiss = { showChargingModeSettings = false },
             onSave = { newAction ->
                 showChargingModeSettings = false
-                onActionSelected(newAction)
-                configAction = null
-            },
-        )
-    }
-
-    if (showNotificationLightingSettings && configAction is Action.TriggerNotificationLighting) {
-        NotificationLightingActionSheet(
-            initialAction = configAction as Action.TriggerNotificationLighting,
-            onDismiss = { showNotificationLightingSettings = false },
-            onSave = { newAction ->
-                showNotificationLightingSettings = false
                 onActionSelected(newAction)
                 configAction = null
             },

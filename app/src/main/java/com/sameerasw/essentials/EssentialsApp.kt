@@ -60,8 +60,6 @@ class EssentialsApp : Application() {
             .init(this)
         com.sameerasw.essentials.services.automation.AutomationManager
             .init(this)
-        com.sameerasw.essentials.services.CalendarSyncManager
-            .init(this)
         com.sameerasw.essentials.services.DeviceInfoSyncManager
             .init(this)
         com.sameerasw.essentials.utils.ServiceUtils

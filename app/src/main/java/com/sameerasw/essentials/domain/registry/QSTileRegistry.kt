@@ -26,15 +26,11 @@ import com.sameerasw.essentials.services.tiles.DeveloperOptionsTileService
 import com.sameerasw.essentials.services.tiles.DuoTileService
 import com.sameerasw.essentials.services.tiles.DynamicNightLightTileService
 import com.sameerasw.essentials.services.tiles.EssentialsOnDisplayTileService
-import com.sameerasw.essentials.services.tiles.FlashlightPulseTileService
 import com.sameerasw.essentials.services.tiles.FlashlightTileService
 import com.sameerasw.essentials.services.tiles.HapticsTileService
-import com.sameerasw.essentials.services.tiles.IslandTileService
 import com.sameerasw.essentials.services.tiles.LockdownTileService
-import com.sameerasw.essentials.services.tiles.MapsPowerSavingTileService
 import com.sameerasw.essentials.services.tiles.MonoAudioTileService
 import com.sameerasw.essentials.services.tiles.NfcTileService
-import com.sameerasw.essentials.services.tiles.NotificationLightingTileService
 import com.sameerasw.essentials.services.tiles.PrivateDnsTileService
 import com.sameerasw.essentials.services.tiles.HeadsUpNotificationsTileService
 import com.sameerasw.essentials.services.tiles.PrivateNotificationsTileService
@@ -137,14 +133,6 @@ object QSTileRegistry {
                 R.string.cat_utils,
             ),
             QSTileInfo(
-                R.string.tile_notification_lighting,
-                R.drawable.rounded_blur_linear_24,
-                NotificationLightingTileService::class.java,
-                listOf("DRAW_OVERLAYS", "ACCESSIBILITY", "NOTIFICATION_LISTENER"),
-                R.string.about_desc_notification_lighting,
-                R.string.cat_utils,
-            ),
-            QSTileInfo(
                 R.string.tile_dynamic_night_light,
                 R.drawable.rounded_nightlight_24,
                 DynamicNightLightTileService::class.java,
@@ -206,15 +194,6 @@ object QSTileRegistry {
                 },
                 R.string.about_desc_freeze,
                 R.string.cat_utils,
-            ),
-            QSTileInfo(
-                R.string.tile_flashlight_pulse,
-                R.drawable.outline_backlight_high_24,
-                FlashlightPulseTileService::class.java,
-                listOf("NOTIFICATION_LISTENER"),
-                R.string.about_desc_flashlight_pulse,
-                R.string.cat_utils,
-                isSupported = { _ -> !DeviceUtils.isTorchRestrictedDevice() },
             ),
             QSTileInfo(
                 R.string.tile_stay_awake,
@@ -291,21 +270,6 @@ object QSTileRegistry {
                 isSupported = { _ -> DeviceUtils.isGoogleDevice() },
             ),
             QSTileInfo(
-                R.string.feat_maps_power_saving_title,
-                R.drawable.rounded_navigation_24,
-                MapsPowerSavingTileService::class.java,
-                if (ShellUtils.isRootEnabled(context)) {
-                    listOf(
-                        "ROOT",
-                        "NOTIFICATION_LISTENER",
-                    )
-                } else {
-                    listOf("SHIZUKU", "NOTIFICATION_LISTENER")
-                },
-                R.string.about_desc_maps_power_saving,
-                R.string.cat_utils,
-            ),
-            QSTileInfo(
                 R.string.tile_private_dns,
                 R.drawable.rounded_dns_24,
                 PrivateDnsTileService::class.java,
@@ -376,14 +340,6 @@ object QSTileRegistry {
                 DuoTileService::class.java,
                 listOf("ACCESSIBILITY"),
                 R.string.about_desc_duo_tile,
-                R.string.cat_visuals,
-            ),
-            QSTileInfo(
-                R.string.island_title,
-                R.drawable.rounded_upcoming_24,
-                IslandTileService::class.java,
-                listOf("ACCESSIBILITY", "NOTIFICATION_LISTENER"),
-                R.string.about_desc_island_tile,
                 R.string.cat_visuals,
             ),
             QSTileInfo(

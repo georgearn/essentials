@@ -153,22 +153,18 @@ class QSPreferencesActivity : ComponentActivity() {
             val feature =
                 when (componentName.className) {
                     "com.sameerasw.essentials.services.tiles.CaffeinateTileService" -> "Caffeinate"
-                    "com.sameerasw.essentials.services.tiles.NotificationLightingTileService" -> "Notification lighting"
                     "com.sameerasw.essentials.services.tiles.DynamicNightLightTileService" -> "Dynamic night light"
                     "com.sameerasw.essentials.services.tiles.AppLockTileService" -> "App lock"
                     "com.sameerasw.essentials.services.tiles.ScreenLockedSecurityTileService" -> "Screen locked security"
                     "com.sameerasw.essentials.services.tiles.AppFreezingTileService" -> "Freeze"
-                    "com.sameerasw.essentials.services.tiles.FlashlightPulseTileService" -> "Notification lighting"
                     "com.sameerasw.essentials.services.tiles.StayAwakeTileService" -> "Quick settings tiles"
                     "com.sameerasw.essentials.services.tiles.NfcTileService" -> "NFC"
                     "com.sameerasw.essentials.services.tiles.AdaptiveBrightnessTileService" -> "Quick settings tiles"
                     "com.sameerasw.essentials.services.tiles.RefreshRateTileService" -> "Screen refresh rate"
-                    "com.sameerasw.essentials.services.tiles.MapsPowerSavingTileService" -> "Maps power saving mode"
                     "com.sameerasw.essentials.services.tiles.UsbDebuggingTileService" -> "Quick settings tiles"
                     "com.sameerasw.essentials.services.tiles.BatteryNotificationTileService" -> "Battery notification"
                     "com.sameerasw.essentials.services.tiles.ChargeQuickTileService" -> "Battery notification"
                     "com.sameerasw.essentials.services.tiles.AlwaysOnDisplayTileService" -> "Always on Display"
-                    "com.sameerasw.essentials.services.tiles.LocationReachedTileService" -> "Location reached"
                     "com.sameerasw.essentials.services.tiles.UrlShortenerTileService" -> "URL Shortener"
                     else -> null
                 }

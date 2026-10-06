@@ -84,8 +84,6 @@ fun WatchSettingsUI(
                                 com.sameerasw.essentials.services.DeviceInfoSyncManager.forceSync(
                                     context,
                                 )
-                                com.sameerasw.essentials.services.CalendarSyncManager
-                                    .forceSync(context)
                             }.padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,

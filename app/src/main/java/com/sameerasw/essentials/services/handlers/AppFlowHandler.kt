@@ -187,14 +187,12 @@ class AppFlowHandler(
                         currentConsciousGateSession = null
                     }
                     ScreenOffAccessibilityService.instance?.let { s ->
-                        s.islandOverlayHandler.updateConsciousGateState()
                     }
                 }
                 pendingGateLeaveRunnables[oldPackage] = leaveRunnable
                 handler.postDelayed(leaveRunnable, 5_000L)
             }
             ScreenOffAccessibilityService.instance?.let { s ->
-                s.islandOverlayHandler.updateConsciousGateState()
             }
             checkShutUpRestore(oldPackage, packageName)
         }
@@ -358,7 +356,6 @@ class AppFlowHandler(
         if (isSessionActive && leftDuration < 5_000L) {
             lastLeaveTimes.remove(packageName)
             ScreenOffAccessibilityService.instance?.let { s ->
-                s.islandOverlayHandler.updateConsciousGateState()
             }
             return
         }
@@ -369,7 +366,6 @@ class AppFlowHandler(
             currentConsciousGateSession = null
         }
         ScreenOffAccessibilityService.instance?.let { s ->
-            s.islandOverlayHandler.updateConsciousGateState()
         }
 
         if (packageName == gatingPackage && now - lastGateRequestTime < 2500) {
@@ -426,7 +422,6 @@ class AppFlowHandler(
             )
 
         ScreenOffAccessibilityService.instance?.let { s ->
-            s.islandOverlayHandler.updateConsciousGateState()
         }
 
         if (reappearMinutes > 0) {

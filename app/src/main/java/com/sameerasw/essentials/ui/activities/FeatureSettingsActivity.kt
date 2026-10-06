@@ -70,34 +70,19 @@ import com.sameerasw.essentials.ui.features.system.AlwaysOnDisplaySettingsUI
 import com.sameerasw.essentials.ui.features.system.BatteryNotificationSettingsUI
 import com.sameerasw.essentials.ui.features.system.ButtonRemapSettingsUI
 import com.sameerasw.essentials.ui.features.system.CaffeinateSettingsUI
-import com.sameerasw.essentials.ui.features.system.CalendarSyncSettingsUI
 import com.sameerasw.essentials.ui.features.display.AodWallpaperPreviewCard
 import com.sameerasw.essentials.ui.features.display.AodWallpaperSettingsUI
 import com.sameerasw.essentials.ui.features.display.DuoSettingsUI
-import com.sameerasw.essentials.ui.features.display.ISLAND_BEHAVIOR_FEATURE_ID
-import com.sameerasw.essentials.ui.features.display.ISLAND_DURATION_FEATURE_ID
-import com.sameerasw.essentials.ui.features.display.ISLAND_PLACEMENT_FEATURE_ID
-import com.sameerasw.essentials.ui.features.display.ISLAND_SUB_PAGE_IDS
-import com.sameerasw.essentials.ui.features.display.ISLAND_VISUALS_FEATURE_ID
-import com.sameerasw.essentials.ui.features.display.IslandBehaviorSettingsUI
-import com.sameerasw.essentials.ui.features.display.IslandDurationSettingsUI
-import com.sameerasw.essentials.ui.features.display.IslandPlacementSettingsUI
-import com.sameerasw.essentials.ui.features.display.IslandSettingsUI
-import com.sameerasw.essentials.ui.features.display.IslandVisualsSettingsUI
 import com.sameerasw.essentials.ui.features.display.StatusGlanceSettingsUI
 import com.sameerasw.essentials.ui.features.system.DynamicNightLightSettingsUI
 import com.sameerasw.essentials.ui.features.system.EssentialsOnDisplaySettingsUI
-import com.sameerasw.essentials.ui.features.system.FlashlightPulseSettingsUI
 import com.sameerasw.essentials.ui.features.system.FlashlightSettingsUI
 import com.sameerasw.essentials.ui.features.system.FreezeSettingsUI
 import com.sameerasw.essentials.ui.features.system.KeyboardSettingsUI
 import com.sameerasw.essentials.ui.features.system.LiveWallpaperSettingsUI
-import com.sameerasw.essentials.ui.features.system.LocationReachedSettingsUI
 import com.sameerasw.essentials.ui.features.system.LockScreenClockSettingsUI
-import com.sameerasw.essentials.ui.features.system.MapsPowerSavingSettingsUI
 import com.sameerasw.essentials.ui.features.system.NavigationSettingsUI
 import com.sameerasw.essentials.ui.features.system.NetworksSettingsUI
-import com.sameerasw.essentials.ui.features.system.NotificationLightingSettingsUI
 import com.sameerasw.essentials.ui.features.system.NotificationSnoozingSettingsUI
 import com.sameerasw.essentials.ui.features.system.OtherCustomizationsSettingsUI
 import com.sameerasw.essentials.ui.features.system.PocketModeSettingsUI
@@ -987,13 +972,6 @@ class FeatureSettingsActivity : AppCompatActivity() {
                                         )
                                     }
 
-                                    "Notification lighting" -> {
-                                        NotificationLightingSettingsUI(
-                                            viewModel = viewModel,
-                                            modifier = Modifier.padding(top = 16.dp),
-                                            highlightSetting = highlightSetting,
-                                        )
-                                    }
 
                                     "Sound mode tile" -> {
                                         SoundModeTileSettingsUI(
@@ -1103,13 +1081,6 @@ class FeatureSettingsActivity : AppCompatActivity() {
                                         )
                                     }
 
-                                    "Location reached" -> {
-                                        LocationReachedSettingsUI(
-                                            mainViewModel = viewModel,
-                                            modifier = Modifier.fillMaxSize(),
-                                            highlightSetting = highlightSetting,
-                                        )
-                                    }
 
                                     "System Keyboard" -> {
                                         KeyboardSettingsUI(
@@ -1142,13 +1113,6 @@ class FeatureSettingsActivity : AppCompatActivity() {
                                         )
                                     }
 
-                                    "Calendar Sync" -> {
-                                        CalendarSyncSettingsUI(
-                                            viewModel = viewModel,
-                                            modifier = Modifier.padding(top = 16.dp),
-                                            highlightKey = highlightSetting,
-                                        )
-                                    }
 
                                     "Watchface" -> {
                                         WatchfaceSettingsUI(
@@ -1191,13 +1155,6 @@ class FeatureSettingsActivity : AppCompatActivity() {
                                         )
                                     }
 
-                                    "Maps power saving mode" -> {
-                                        MapsPowerSavingSettingsUI(
-                                            viewModel = viewModel,
-                                            modifier = Modifier.padding(top = 16.dp),
-                                            highlightSetting = highlightSetting,
-                                        )
-                                    }
 
                                     "Duo" -> {
                                         DuoSettingsUI(
@@ -1207,45 +1164,10 @@ class FeatureSettingsActivity : AppCompatActivity() {
                                         )
                                     }
 
-                                    "Island" -> {
-                                        IslandSettingsUI(
-                                            viewModel = viewModel,
-                                            modifier = Modifier.padding(top = 16.dp),
-                                            highlightSetting = highlightSetting,
-                                        )
-                                    }
 
-                                    ISLAND_PLACEMENT_FEATURE_ID -> {
-                                        IslandPlacementSettingsUI(
-                                            viewModel = viewModel,
-                                            modifier = Modifier.padding(top = 16.dp),
-                                            highlightSetting = highlightSetting,
-                                        )
-                                    }
 
-                                    ISLAND_VISUALS_FEATURE_ID -> {
-                                        IslandVisualsSettingsUI(
-                                            viewModel = viewModel,
-                                            modifier = Modifier.padding(top = 16.dp),
-                                            highlightSetting = highlightSetting,
-                                        )
-                                    }
 
-                                    ISLAND_DURATION_FEATURE_ID -> {
-                                        IslandDurationSettingsUI(
-                                            viewModel = viewModel,
-                                            modifier = Modifier.padding(top = 16.dp),
-                                            highlightSetting = highlightSetting,
-                                        )
-                                    }
 
-                                    ISLAND_BEHAVIOR_FEATURE_ID -> {
-                                        IslandBehaviorSettingsUI(
-                                            viewModel = viewModel,
-                                            modifier = Modifier.padding(top = 16.dp),
-                                            highlightSetting = highlightSetting,
-                                        )
-                                    }
 
                                     "Status glance" -> {
                                         StatusGlanceSettingsUI(
@@ -1255,13 +1177,6 @@ class FeatureSettingsActivity : AppCompatActivity() {
                                         )
                                     }
 
-                                    "Flashlight pulse" -> {
-                                        FlashlightPulseSettingsUI(
-                                            viewModel = viewModel,
-                                            modifier = Modifier.padding(top = 16.dp),
-                                            highlightSetting = highlightSetting,
-                                        )
-                                    }
 
                                     "Text and animations" -> {
                                         TextAnimationsSettingsUI(
@@ -1394,23 +1309,16 @@ class FeatureSettingsActivity : AppCompatActivity() {
                             fabIconRes =
                                 when {
                                     isStandbyMultiSelecting -> R.drawable.rounded_mobiledata_arrows_24
-                                    (featureId == "Island" || featureId in ISLAND_SUB_PAGE_IDS) -> R.drawable.rounded_play_arrow_24
                                     else -> null
                                 },
                             fabAction =
                                 when {
                                     isStandbyMultiSelecting -> { { isStandbyMoveSheetVisible = true } }
-                                    (featureId == "Island" || featureId in ISLAND_SUB_PAGE_IDS) -> {
-                                        {
-                                            viewModel.triggerIslandPreview(context)
-                                        }
-                                    }
                                     else -> null
                                 },
                             fabContentDescription =
                                 when {
                                     isStandbyMultiSelecting -> stringResource(R.string.action_move_bucket)
-                                    (featureId == "Island" || featureId in ISLAND_SUB_PAGE_IDS) -> stringResource(R.string.action_preview)
                                     else -> null
                                 },
                             modifier =
@@ -1418,7 +1326,7 @@ class FeatureSettingsActivity : AppCompatActivity() {
                                     .align(Alignment.BottomCenter)
                                     .zIndex(1f),
                             onHelpClick =
-                                if (isStandbyMultiSelecting || (featureId == "Island" || featureId in ISLAND_SUB_PAGE_IDS)) {
+                                if (isStandbyMultiSelecting) {
                                     null
                                 } else {
                                     {
