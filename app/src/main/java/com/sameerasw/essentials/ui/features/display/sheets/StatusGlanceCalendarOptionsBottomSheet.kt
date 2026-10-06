@@ -51,16 +51,13 @@ import com.sameerasw.essentials.viewmodels.MainViewModel
 fun StatusGlanceCalendarOptionsBottomSheet(
     viewModel: MainViewModel,
     onDismissRequest: () -> Unit,
-    allowIconEdit: Boolean = false,
 ) {
     val context = LocalContext.current
     val view = LocalView.current
     val scrollState = rememberScrollState()
-    var editingCalendar by remember { mutableStateOf<MainViewModel.CalendarAccount?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.fetchStatusGlanceCalendars(context)
-        if (allowIconEdit) viewModel.loadIslandCalendarEmojis()
     }
 
     val timeframes = listOf(
@@ -75,24 +72,6 @@ fun StatusGlanceCalendarOptionsBottomSheet(
     )
 
     val currentCode = viewModel.statusGlanceCalendarTimeframe.value
-    val timeframeMinutes = when (currentCode) {
-        "15m" -> 15
-        "30m" -> 30
-        "1h" -> 60
-        "2h" -> 120
-        "6h" -> 360
-        "24h" -> 1440
-        else -> Int.MAX_VALUE
-    }
-    val settings = remember { SettingsRepository(context) }
-    var priorityMinutes by remember { mutableIntStateOf(settings.getIslandCalendarPriorityMinutes()) }
-    val priorityOptions = listOf(0, 5, 10, 15, 30, 60, 120).filter { it < timeframeMinutes }
-    val disabledLabel = stringResource(R.string.island_calendar_priority_disabled)
-    fun priorityLabel(minutes: Int): String = when {
-        minutes <= 0 -> disabledLabel
-        minutes < 60 -> context.getString(R.string.island_calendar_priority_minutes, minutes)
-        else -> context.getString(R.string.island_calendar_priority_hours, minutes / 60)
-    }
     val currentLabel = timeframes.firstOrNull { it.first == currentCode }?.second
         ?: stringResource(R.string.status_glance_calendar_timeframe_today)
 
@@ -128,25 +107,6 @@ fun StatusGlanceCalendarOptionsBottomSheet(
                                 viewModel.setStatusGlanceCalendarTimeframe(code)
                             },
                         )
-                    }
-                }
-
-                if (allowIconEdit) {
-                    ConfigPickerItem(
-                        title = stringResource(R.string.island_calendar_priority_title),
-                        selectedValue = priorityLabel(priorityMinutes),
-                        iconRes = R.drawable.rounded_timer_24,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        priorityOptions.forEach { minutes ->
-                            SegmentedDropdownMenuItem(
-                                text = { Text(priorityLabel(minutes)) },
-                                onClick = {
-                                    priorityMinutes = minutes
-                                    settings.setIslandCalendarPriorityMinutes(minutes)
-                                },
-                            )
-                        }
                     }
                 }
 
@@ -191,101 +151,17 @@ fun StatusGlanceCalendarOptionsBottomSheet(
                         cornerRadius = 24.dp,
                     ) {
                         accountCalendars.forEach { calendar ->
-                            val emoji = if (allowIconEdit) viewModel.islandCalendarEmojis.value[calendar.id] else null
                             IconToggleItem(
-                                title = if (emoji != null) "$emoji  ${calendar.name}" else calendar.name,
+                                title = calendar.name,
                                 iconRes = R.drawable.rounded_calendar_today_24,
                                 isChecked = calendar.isSelected,
                                 onCheckedChange = {
                                     HapticUtil.performVirtualKeyHaptic(view)
                                     viewModel.toggleStatusGlanceCalendarSelection(calendar.id)
                                 },
-                                onSettingsClick = if (allowIconEdit) ({ editingCalendar = calendar }) else null,
-                                settingsIconRes = R.drawable.rounded_edit_24,
                             )
                         }
                     }
-                }
-            }
-        }
-    }
-
-    editingCalendar?.let { calendar ->
-        CalendarEmojiSheet(
-            calendarName = calendar.name,
-            initial = viewModel.islandCalendarEmojis.value[calendar.id].orEmpty(),
-            onSave = { emoji -> viewModel.setIslandCalendarEmoji(calendar.id, emoji) },
-            onDismissRequest = { editingCalendar = null },
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun CalendarEmojiSheet(
-    calendarName: String,
-    initial: String,
-    onSave: (String?) -> Unit,
-    onDismissRequest: () -> Unit,
-) {
-    val view = LocalView.current
-    var input by remember { mutableStateOf(initial) }
-    val trimmed = input.trim()
-    val valid = trimmed.isEmpty() || EmojiUtil.isSingleEmoji(trimmed)
-
-    EssentialsBottomSheet(onDismissRequest = onDismissRequest) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-                .padding(bottom = 32.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            Text(
-                text = calendarName,
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(start = 8.dp),
-            )
-            OutlinedTextField(
-                value = input,
-                onValueChange = { input = it },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                isError = !valid,
-                placeholder = { Text(stringResource(R.string.island_calendar_emoji_hint)) },
-                supportingText = if (!valid) {
-                    { Text(stringResource(R.string.island_calendar_emoji_invalid)) }
-                } else {
-                    null
-                },
-                textStyle = MaterialTheme.typography.headlineSmall,
-                shape = RoundedCornerShape(16.dp),
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                OutlinedButton(
-                    onClick = {
-                        HapticUtil.performVirtualKeyHaptic(view)
-                        onSave(null)
-                        onDismissRequest()
-                    },
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Text(stringResource(R.string.action_reset))
-                }
-                Button(
-                    onClick = {
-                        HapticUtil.performVirtualKeyHaptic(view)
-                        onSave(trimmed.ifEmpty { null })
-                        onDismissRequest()
-                    },
-                    enabled = valid,
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Text(stringResource(R.string.action_save))
                 }
             }
         }

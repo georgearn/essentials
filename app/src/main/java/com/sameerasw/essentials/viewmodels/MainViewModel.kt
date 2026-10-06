@@ -85,9 +85,6 @@ import com.sameerasw.essentials.utils.ShizukuUtils
 import com.sameerasw.essentials.utils.SurfaceFlingerControl
 import com.sameerasw.essentials.utils.TestNotificationUtil
 import com.sameerasw.essentials.utils.UpdateNotificationHelper
-import com.sameerasw.essentials.utils.overlay.writeTo
-import com.sameerasw.essentials.viewmodels.state.DashSettings
-import com.sameerasw.essentials.viewmodels.state.RippleSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -117,7 +114,6 @@ class MainViewModel : ViewModel() {
     val selectedAppIcon = mutableStateOf(AppIcon.DEFAULT)
     val isDefaultBrowserSet = mutableStateOf(false)
     val onlyShowWhenScreenOff = mutableStateOf(true)
-    val isAmbientDisplayEnabled = mutableStateOf(false)
     val isAmbientShowLockScreenEnabled = mutableStateOf(false)
     val isButtonRemapEnabled = mutableStateOf(false)
     val isButtonRemapUseShizuku = mutableStateOf(false)
@@ -285,7 +281,6 @@ class MainViewModel : ViewModel() {
     val shutUpRestoreMode = mutableStateOf("Auto")
     val shutUpKeyboard = mutableStateOf("")
     val shizukuAuthToken = mutableStateOf("")
-    val edgeLightingSweepSelectedShapes = mutableStateOf<Set<String>>(emptySet())
 
     data class CalendarAccount(
         val id: Long,
@@ -303,7 +298,6 @@ class MainViewModel : ViewModel() {
     val isDeveloperModeEnabled = mutableStateOf(false)
     val isNotificationPolicyAccessGranted = mutableStateOf(false)
     val skipSilentNotifications = mutableStateOf(true)
-    val dash = DashSettings { settingsRepository }
     val skipPersistentNotifications = mutableStateOf(false)
     val isAppLockEnabled = mutableStateOf(false)
     val appLockAutoLockDelayIndex = mutableIntStateOf(0)
@@ -354,6 +348,8 @@ class MainViewModel : ViewModel() {
     val isSecureSensitiveTilesEnabled = mutableStateOf(true)
     val isBlurEnabled = mutableStateOf(true)
     val isBlurSettingEnabled = mutableStateOf(true)
+    val isRippleEnabled = mutableStateOf(true)
+    val isRippleSettingEnabled = mutableStateOf(true)
     val isMotionBlurEnabled = mutableStateOf(false)
     val isMotionBlurSettingEnabled = mutableStateOf(false)
     val motionBlurScale = mutableFloatStateOf(1.0f)
@@ -950,6 +946,10 @@ class MainViewModel : ViewModel() {
 
                     SettingsRepository.KEY_USE_BLUR -> {
                         appContext?.let { updateBlurState(it) }
+                    }
+
+                    SettingsRepository.KEY_USE_RIPPLE -> {
+                        appContext?.let { updateRippleState(it) }
                     }
 
                     SettingsRepository.KEY_MOTION_BLUR -> {
@@ -1601,6 +1601,7 @@ class MainViewModel : ViewModel() {
 
         isPowerSaveModeEnabled.value = DeviceUtils.isPowerSaveMode(context)
         updateBlurState(context)
+        updateRippleState(context)
         updateMotionBlurState(context)
         updateAddedQSTiles(context)
 
@@ -1615,6 +1616,7 @@ class MainViewModel : ViewModel() {
                             context?.let {
                                 isPowerSaveModeEnabled.value = DeviceUtils.isPowerSaveMode(it)
                                 updateBlurState(it)
+                                updateRippleState(it)
                                 updateMotionBlurState(it)
                             }
                         }
@@ -1682,8 +1684,6 @@ class MainViewModel : ViewModel() {
             isRootAvailable.value = false
             isRootPermissionGranted.value = false
         }
-
-        dash.load()
 
         hapticFeedbackType.value = settingsRepository.getHapticFeedbackType()
         defaultTab.value = settingsRepository.getDIYTab()
@@ -2046,6 +2046,7 @@ class MainViewModel : ViewModel() {
         screenTimeout.value = settingsRepository.getScreenTimeout()
         isPowerSaveModeEnabled.value = DeviceUtils.isPowerSaveMode(context)
         updateBlurState(context)
+        updateRippleState(context)
         updateMotionBlurState(context)
 
         refreshTrackedUpdates(context)
@@ -2614,10 +2615,13 @@ class MainViewModel : ViewModel() {
      *
      * @param enabled [Boolean] Target enabled.
      * @param context [Context] Target context.
+     */
     fun setRippleEnabled(
         enabled: Boolean,
         context: Context,
     ) {
+        settingsRepository.putBoolean(SettingsRepository.KEY_USE_RIPPLE, enabled)
+        updateRippleState(context)
     }
 
     fun setMotionBlurEnabled(
@@ -2661,6 +2665,14 @@ class MainViewModel : ViewModel() {
 
         isBlurSettingEnabled.value = useBlurSetting
         isBlurEnabled.value = useBlurSetting && !isProblematic && !isPowerSave
+    }
+
+    private fun updateRippleState(context: Context) {
+        val useRippleSetting = settingsRepository.getBoolean(SettingsRepository.KEY_USE_RIPPLE, true)
+        val isPowerSave = DeviceUtils.isPowerSaveMode(context)
+
+        isRippleSettingEnabled.value = useRippleSetting
+        isRippleEnabled.value = useRippleSetting && !isPowerSave
     }
 
     private fun updateMotionBlurState(context: Context) {
@@ -2827,29 +2839,6 @@ class MainViewModel : ViewModel() {
     }
 
     /**
-     * Executes the set maps power saving enabled operation.
-     *
-     * @param enabled [Boolean] Target enabled.
-     * @param context [Context] Target context.
-    fun setMapsPowerSavingEnabled(
-        enabled: Boolean,
-        context: Context,
-    ) {
-        MapsState.isEnabled = enabled
-    }
-
-    /**
-     * Executes the set notification lighting enabled operation.
-     *
-     * @param enabled [Boolean] Target enabled.
-     * @param context [Context] Target context.
-    fun setNotificationLightingEnabled(
-        enabled: Boolean,
-        context: Context,
-    ) {
-    }
-
-    /**
      * Executes the set only show when screen off operation.
      *
      * @param enabled [Boolean] Target enabled.
@@ -2862,25 +2851,6 @@ class MainViewModel : ViewModel() {
         onlyShowWhenScreenOff.value = enabled
     }
 
-    /**
-     * Executes the set ambient display enabled operation.
-     *
-     * @param enabled [Boolean] Target enabled.
-     * @param context [Context] Target context.
-     */
-    fun setAmbientDisplayEnabled(
-        enabled: Boolean,
-        context: Context,
-    ) {
-        isAmbientDisplayEnabled.value = enabled
-    }
-
-    /**
-     * Executes the set ambient show lock screen enabled operation.
-     *
-     * @param enabled [Boolean] Target enabled.
-     * @param context [Context] Target context.
-     */
     fun setAmbientShowLockScreenEnabled(
         enabled: Boolean,
         context: Context,
@@ -3780,50 +3750,6 @@ class MainViewModel : ViewModel() {
         context: Context,
     ) {
         skipPersistentNotifications.value = enabled
-    }
-
-    /**
-     * Executes the set notification lighting style operation.
-     *
-     * @param style [NotificationLightingStyle] Target style.
-     * @param context [Context] Target context.
-    fun setNotificationLightingStyle(
-        style: NotificationLightingStyle,
-        context: Context,
-    ) {
-    }
-
-    /**
-     * Executes the set notification lighting system mode operation.
-     *
-     * @param mode [Int] Target mode.
-     * @param context [Context] Target context.
-    fun setNotificationLightingSystemMode(
-        mode: Int,
-        context: Context,
-    ) {
-    }
-
-    /**
-     * Executes the set notification lighting color mode operation.
-     *
-     * @param mode [NotificationLightingColorMode] Target mode.
-     * @param context [Context] Target context.
-    fun setNotificationLightingColorMode(
-        mode: NotificationLightingColorMode,
-        context: Context,
-    ) {
-    }
-
-    /**
-     * Executes the set notification lighting custom color operation.
-     *
-     * @param color [Int] Target color.
-     * @param context [Context] Target context.
-    fun setNotificationLightingCustomColor(
-        color: Int,
-        context: Context,
-    ) {
     }
 
     /**
@@ -5055,117 +4981,6 @@ class MainViewModel : ViewModel() {
     }
 
     /**
-     * Executes the save notification lighting pulse count operation.
-     *
-     * @param context [Context] Target context.
-     * @param count [Float] Target count.
-    fun saveNotificationLightingPulseCount(
-        context: Context,
-        count: Float,
-    ) {
-    }
-
-    /**
-     * Executes the save notification lighting pulse duration operation.
-     *
-     * @param context [Context] Target context.
-     * @param duration [Float] Target duration.
-    fun saveNotificationLightingPulseDuration(
-        context: Context,
-        duration: Float,
-    ) {
-    }
-
-    /**
-     * Executes the set flashlight pulse enabled operation.
-     *
-     * @param enabled [Boolean] Target enabled.
-     * @param context [Context] Target context.
-    fun setFlashlightPulseEnabled(
-        enabled: Boolean,
-        context: Context,
-    ) {
-    }
-
-    /**
-     * Executes the set flashlight pulse facedown only operation.
-     *
-     * @param enabled [Boolean] Target enabled.
-     * @param context [Context] Target context.
-    fun setFlashlightPulseFacedownOnly(
-        enabled: Boolean,
-        context: Context,
-    ) {
-    }
-
-    /**
-     * Executes the set flashlight pulse use lighting apps operation.
-     *
-     * @param enabled [Boolean] Target enabled.
-     * @param context [Context] Target context.
-    fun setFlashlightPulseUseLightingApps(
-        enabled: Boolean,
-        context: Context,
-    ) {
-    }
-
-    /**
-     * Executes the set flashlight pulse max intensity operation.
-     *
-     * @param intensity [Float] Target intensity.
-    fun setFlashlightPulseMaxIntensity(intensity: Float) {
-    }
-
-    /**
-     * Executes the set flashlight pulse disable on dnd operation.
-     *
-     * @param enabled [Boolean] Target enabled.
-     * @param context [Context] Target context.
-    fun setFlashlightPulseDisableOnDnd(
-        enabled: Boolean,
-        context: Context,
-    ) {
-    }
-
-    /**
-     * Executes the preview flashlight pulse operation.
-     *
-     * @param context [Context] Target context.
-    fun previewFlashlightPulse(context: Context) {
-        val intent =
-            Intent(context, FlashlightActionReceiver::class.java).apply {
-                action = FlashlightActionReceiver.ACTION_PULSE_NOTIFICATION
-                putExtra(FlashlightActionReceiver.EXTRA_IS_PREVIEW, true)
-            }
-        context.sendBroadcast(intent)
-    }
-
-    /**
-     * Executes the trigger notification lighting system operation.
-     *
-     * @param context [Context] Target context.
-    fun triggerNotificationLightingSystem(context: Context) {
-        if (!ShellUtils.hasPermission(context)) return
-
-        val windowManager =
-            context.getSystemService(Context.WINDOW_SERVICE) as android.view.WindowManager
-        val (widthPx, heightPx) =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                val bounds = windowManager.currentWindowMetrics.bounds
-                Pair(bounds.width(), bounds.height())
-            } else {
-                val metrics = android.util.DisplayMetrics()
-                @Suppress("DEPRECATION")
-                windowManager.defaultDisplay.getRealMetrics(metrics)
-                Pair(metrics.widthPixels, metrics.heightPixels)
-            }
-        val centerX = widthPx / 2
-        val centerY = heightPx / 2
-
-        ShellUtils.runCommand(context, command)
-    }
-
-    /**
      * Executes the open ime settings operation.
      *
      * @param context [Context] Target context.
@@ -5722,67 +5537,9 @@ class MainViewModel : ViewModel() {
 
     // Notification Lighting App Selection Methods
 
-    /**
-     * Executes the load notification lighting selected apps operation.
-     *
-     * @param context [Context] Target context.
-     * @return The resulting List<AppSelection> data.
-    fun loadNotificationLightingSelectedApps(context: Context): List<AppSelection> =
-        settingsRepository.loadNotificationLightingSelectedApps()
-
-    /**
-     * Executes the load flashlight pulse selected apps operation.
-     *
-     * @param context [Context] Target context.
-     * @return The resulting List<AppSelection> data.
-    fun loadFlashlightPulseSelectedApps(context: Context): List<AppSelection> = settingsRepository.loadFlashlightPulseSelectedApps()
-
-    /**
-     * Executes the save flashlight pulse selected apps operation.
-     *
-     * @param context [Context] Target context.
-     * @param apps [List<AppSelection>] Target apps.
-    fun saveFlashlightPulseSelectedApps(
-        context: Context,
-        apps: List<AppSelection>,
-    ) {
-    }
-
-    /**
-     * Executes the update flashlight pulse app enabled operation.
-     *
-     * @param context [Context] Target context.
-     * @param packageName [String] Target package name.
-     * @param enabled [Boolean] Target enabled.
-    fun updateFlashlightPulseAppEnabled(
-        context: Context,
-        packageName: String,
-        enabled: Boolean,
-    ) {
-    }
-
     // Notification Lighting Corner Radius Methods
 
-    /**
-     * Executes the load notification lighting corner radius operation.
-     *
-     * @param context [Context] Target context.
-     * @return The resulting Float data.
-    fun loadNotificationLightingCornerRadius(context: Context): Float =
-        settingsRepository.getFloat(SettingsRepository.KEY_EDGE_LIGHTING_CORNER_RADIUS, 20f)
-
     // Notification Lighting Stroke Thickness Methods
-
-    /**
-     * Executes the load notification lighting stroke thickness operation.
-     *
-     * @param context [Context] Target context.
-     * @return The resulting Float data.
-    fun loadNotificationLightingStrokeThickness(context: Context): Float =
-        settingsRepository.getFloat(
-            SettingsRepository.KEY_EDGE_LIGHTING_STROKE_THICKNESS,
-            8f,
-        )
 
     // Dynamic Night Light App Selection Methods
     fun saveDynamicNightLightSelectedApps(
@@ -6487,80 +6244,6 @@ class MainViewModel : ViewModel() {
                 SecurityReceiver.REQUESTER_NOTIFICATION_INTERACTIONS,
             )
         }
-    }
-
-    /**
-     * Executes the set notification lighting glow sides operation.
-     *
-     * @param sides [Set<NotificationLightingSide>] Target sides.
-     * @param context [Context] Target context.
-    fun setNotificationLightingGlowSides(
-        sides: Set<NotificationLightingSide>,
-        context: Context,
-    ) {
-    }
-
-    /**
-     * Executes the save notification lighting indicator x operation.
-     *
-     * @param context [Context] Target context.
-     * @param x [Float] Target x.
-    fun saveNotificationLightingIndicatorX(
-        context: Context,
-        x: Float,
-    ) {
-    }
-
-    /**
-     * Executes the save notification lighting indicator y operation.
-     *
-     * @param context [Context] Target context.
-     * @param y [Float] Target y.
-    fun saveNotificationLightingIndicatorY(
-        context: Context,
-        y: Float,
-    ) {
-    }
-
-    /**
-     * Executes the save notification lighting indicator scale operation.
-     *
-     * @param context [Context] Target context.
-     * @param scale [Float] Target scale.
-    fun saveNotificationLightingIndicatorScale(
-        context: Context,
-        scale: Float,
-    ) {
-    }
-
-    /**
-     * Executes the save notification lighting sweep thickness operation.
-     *
-     * @param context [Context] Target context.
-     * @param thickness [Float] Target thickness.
-    fun saveNotificationLightingSweepThickness(
-        context: Context,
-        thickness: Float,
-    ) {
-    }
-
-    /**
-     * Executes the save notification lighting sweep random shapes operation.
-     *
-     * @param context [Context] Target context.
-     * @param enabled [Boolean] Target enabled.
-    fun saveNotificationLightingSweepRandomShapes(
-        context: Context,
-        enabled: Boolean,
-    ) {
-    }
-
-    /**
-     * Executes the save edge lighting sweep selected shapes operation.
-     *
-     * @param shapes [Set<String>] Target shapes.
-    fun saveEdgeLightingSweepSelectedShapes(shapes: Set<String>) {
-        edgeLightingSweepSelectedShapes.value = shapes
     }
 
     /**

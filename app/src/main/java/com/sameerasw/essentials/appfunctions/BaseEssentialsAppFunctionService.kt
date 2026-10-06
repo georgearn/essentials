@@ -132,11 +132,6 @@ abstract class BaseEssentialsAppFunctionService : AppFunctionService() {
                 isCaffeinateActive = CaffeinateController.isActive.value,
                 isFlashlightOn = isTorchOn,
                 isAodEnabled = repo.isAodEnabled(),
-                isNotificationLightingEnabled =
-                    repo.getBoolean(
-                        SettingsRepository.KEY_EDGE_LIGHTING_ENABLED,
-                        false,
-                    ),
             )
         }
 
@@ -181,37 +176,6 @@ abstract class BaseEssentialsAppFunctionService : AppFunctionService() {
             val repo = SettingsRepository(applicationContext)
             repo.putString("lock_screen_clock_style", style.uppercase())
             AppFunctionResult(true, "Lock screen clock style set to ${style.uppercase()}")
-        }
-
-    /**
-     * Toggles Notification Edge Lighting effect for incoming notifications.
-     *
-     * @param enabled True to enable notification lighting, false to disable.
-     * @return Result of toggling notification lighting.
-     */
-    @AppFunction(isDescribedByKDoc = true)
-    suspend fun toggleNotificationLighting(enabled: Boolean): AppFunctionResult =
-        withContext(Dispatchers.IO) {
-            val repo = SettingsRepository(applicationContext)
-            repo.putBoolean(SettingsRepository.KEY_EDGE_LIGHTING_ENABLED, enabled)
-            AppFunctionResult(
-                true,
-                "Notification lighting ${if (enabled) "enabled" else "disabled"}",
-            )
-        }
-
-    /**
-     * Toggles Flashlight Pulse notification alerts.
-     *
-     * @param enabled True to enable flashlight pulse for notifications, false to disable.
-     * @return Result of toggling flashlight pulse.
-     */
-    @AppFunction(isDescribedByKDoc = true)
-    suspend fun toggleFlashlightPulse(enabled: Boolean): AppFunctionResult =
-        withContext(Dispatchers.IO) {
-            val repo = SettingsRepository(applicationContext)
-            repo.putBoolean(SettingsRepository.KEY_FLASHLIGHT_PULSE_ENABLED, enabled)
-            AppFunctionResult(true, "Flashlight pulse ${if (enabled) "enabled" else "disabled"}")
         }
 
     /**

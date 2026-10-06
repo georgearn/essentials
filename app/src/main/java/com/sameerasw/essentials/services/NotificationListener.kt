@@ -37,18 +37,14 @@ import com.sameerasw.essentials.data.repository.SettingsRepository
 import com.sameerasw.essentials.domain.HapticFeedbackType
 import com.sameerasw.essentials.domain.MapsState
 import com.sameerasw.essentials.domain.model.ActiveNotificationAlert
-import com.sameerasw.essentials.domain.model.DashConfig
 import com.sameerasw.essentials.domain.model.NotificationActionItem
 import com.sameerasw.essentials.domain.model.ProgressNotificationData
-import com.sameerasw.essentials.domain.model.RippleConfig
 import com.sameerasw.essentials.services.receivers.FlashlightActionReceiver
 import com.sameerasw.essentials.services.tiles.ScreenOffAccessibilityService
 import com.sameerasw.essentials.utils.AppColorUtil
 import com.sameerasw.essentials.utils.AppUtil
 import com.sameerasw.essentials.utils.HapticUtil
 import com.sameerasw.essentials.utils.PermissionUtils
-import com.sameerasw.essentials.utils.overlay.fromPrefs
-import com.sameerasw.essentials.utils.overlay.writeTo
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
@@ -936,12 +932,10 @@ class NotificationListener : NotificationListenerService() {
     ) {
         // Skip our own app's notifications early to avoid flooding logs and redundant processing
         if (sbn.packageName == packageName) {
-            if (hasReadableExtras(sbn)) LiveUpdateSnoozer.onPosted(this, sbn)
             return
         }
         if (!hasReadableExtras(sbn)) return
 
-        LiveUpdateSnoozer.onPosted(this, sbn)
         val isRepost = NotificationRepostFilter.isUnchangedRepost(sbn)
         if (CallNotificationParser.isCall(sbn)) CallStateRepository.onCallNotificationPosted(applicationContext, sbn)
         if (ChronometerRepository.isCandidate(sbn)) ChronometerRepository.onPosted(applicationContext, sbn)
@@ -1134,7 +1128,6 @@ class NotificationListener : NotificationListenerService() {
         rankingMap: RankingMap,
         reason: Int,
     ) {
-        LiveUpdateSnoozer.onRemoved(sbn.key, reason)
         super.onNotificationRemoved(sbn, rankingMap, reason)
     }
 
@@ -1153,7 +1146,6 @@ class NotificationListener : NotificationListenerService() {
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
-        if (LiveUpdateSnoozer.isSnoozedByUs(sbn.key)) return
         NotificationRepostFilter.forget(sbn.key)
         CallStateRepository.onCallNotificationRemoved(sbn.key)
         ChronometerRepository.onRemoved(sbn.key)
@@ -1259,12 +1251,6 @@ class NotificationListener : NotificationListenerService() {
     private fun isAppSelectedForNotificationGlance(packageName: String): Boolean {
         try {
             val prefs = getSharedPreferences("essentials_prefs", MODE_PRIVATE)
-            val sameAsLighting =
-                prefs.getBoolean(SettingsRepository.KEY_NOTIFICATION_GLANCE_SAME_AS_LIGHTING, true)
-            if (sameAsLighting) {
-                return isAppSelectedForNotificationLighting(packageName)
-            }
-
             val json =
                 prefs.getString(SettingsRepository.KEY_NOTIFICATION_GLANCE_SELECTED_APPS, null)
             if (json == null) return true
@@ -1368,82 +1354,6 @@ class NotificationListener : NotificationListenerService() {
         return navigationRegex.containsMatchIn(category)
     }
 
-    private fun isAppSelectedForNotificationLighting(packageName: String): Boolean {
-        try {
-            val prefs =
-                applicationContext.getSharedPreferences("essentials_prefs", MODE_PRIVATE)
-
-            // Check if only show when screen off is enabled
-            val onlyShowWhenScreenOff = prefs.getBoolean("edge_lighting_only_screen_off", true)
-            if (onlyShowWhenScreenOff) {
-                val powerManager =
-                    getSystemService(POWER_SERVICE) as PowerManager
-                val isScreenOn = powerManager.isInteractive
-                if (isScreenOn) {
-                    return false
-                }
-            }
-
-            val json = prefs.getString("edge_lighting_selected_apps", null)
-            if (json == null) {
-                return true
-            }
-
-            // If no saved preferences, allow all apps by default
-
-            val gson = com.google.gson.Gson()
-            val selectedApps: List<com.sameerasw.essentials.domain.model.AppSelection> =
-                gson
-                    .fromJson(
-                        json,
-                        Array<com.sameerasw.essentials.domain.model.AppSelection>::class.java,
-                    ).toList()
-
-            // Find the app in the saved list
-            val app = selectedApps.find { it.packageName == packageName }
-            val result = app?.isEnabled ?: true
-            return result
-        } catch (_: Exception) {
-            // If there's an error, default to allowing all apps (backward compatibility)
-            return true
-        }
-    }
-
-    private fun isAppSelectedForFlashlightPulse(packageName: String): Boolean {
-        try {
-            val prefs =
-                applicationContext.getSharedPreferences("essentials_prefs", MODE_PRIVATE)
-
-            // If "same as lighting" toggle is ON, use notification lighting's app selection
-            val sameAsLighting =
-                prefs.getBoolean(SettingsRepository.KEY_FLASHLIGHT_PULSE_SAME_AS_LIGHTING, true)
-            if (sameAsLighting) {
-                return isAppSelectedForNotificationLighting(packageName)
-            }
-
-            val json = prefs.getString(SettingsRepository.KEY_FLASHLIGHT_PULSE_SELECTED_APPS, null)
-            if (json == null) {
-                return true
-            }
-
-            val gson = com.google.gson.Gson()
-            val selectedApps: List<com.sameerasw.essentials.domain.model.AppSelection> =
-                gson
-                    .fromJson(
-                        json,
-                        Array<com.sameerasw.essentials.domain.model.AppSelection>::class.java,
-                    ).toList()
-
-            // Find the app in the saved list
-            val app = selectedApps.find { it.packageName == packageName }
-            val result = app?.isEnabled ?: true
-            return result
-        } catch (_: Exception) {
-            // If there's an error, default to allowing all apps
-            return true
-        }
-    }
-
     private fun getMediaSessions(manager: android.media.session.MediaSessionManager): List<android.media.session.MediaController> {
         val componentName = android.content.ComponentName(this, NotificationListener::class.java)
         return try {
@@ -1500,14 +1410,9 @@ class NotificationListener : NotificationListenerService() {
                 prefs.getBoolean(SettingsRepository.KEY_AMBIENT_MUSIC_GLANCE_DOCKED_MODE, false)
             if (!isDocked) return
 
-            // Criteria: Non-silent or Lighting logic
-            val isLightingOn = prefs.getBoolean(SettingsRepository.KEY_EDGE_LIGHTING_ENABLED, false)
+            // Criteria: Non-silent
             val shouldHide =
-                if (isLightingOn) {
-                    isAppSelectedForNotificationLighting(sbn.packageName)
-                } else {
-                    !sbn.isOngoing && sbn.notification.priority >= Notification.PRIORITY_DEFAULT
-                }
+                !sbn.isOngoing && sbn.notification.priority >= Notification.PRIORITY_DEFAULT
 
             if (shouldHide) {
                 sendBroadcast(Intent("HIDE_AMBIENT_GLANCE_TEMPORARILY").setPackage(packageName))
@@ -1623,7 +1528,7 @@ class NotificationListener : NotificationListenerService() {
     fun refreshProgressNow() = scheduleProgressRefresh()
 
     fun extractLatestProgressNotification(): ProgressNotificationData? {
-        val active = (safeActiveNotifications() ?: return null).toList() + LiveUpdateSnoozer.snoozedNotifications()
+        val active = (safeActiveNotifications() ?: return null).toList()
         val progressNotifs = active.mapNotNull { sbn ->
             if (sbn.packageName == packageName || isMediaNotification(sbn)) return@mapNotNull null
             extractProgressNotification(sbn)

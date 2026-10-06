@@ -223,9 +223,6 @@ dependencies {
     implementation(libs.api.v1315)
 
     // Google Maps & Location
-    implementation(libs.play.services.location)
-    implementation(libs.play.services.wearable)
-    implementation(libs.androidx.wear.remote.interactions)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.gson)
 
@@ -254,12 +251,6 @@ dependencies {
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.androidx.media3.common)
     implementation(libs.androidx.media3.ui)
-
-    // RemoteIntent support
-    implementation(libs.androidx.wear.remote.interactions.v110alpha02)
-
-    // tandard wearable library
-    implementation(libs.play.services.wearable.v1900)
 
     // Lottie for animations
     implementation(libs.lottie.compose)

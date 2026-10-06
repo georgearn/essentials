@@ -330,6 +330,7 @@ class SettingsRepository(
         const val KEY_AOD_WALLPAPER_MEDIA_EXCLUDED_APPS = "aod_wallpaper_media_excluded_apps"
         const val KEY_AUTO_ACCESSIBILITY_ENABLED = "auto_accessibility_enabled"
         const val KEY_USE_BLUR = "use_blur"
+        const val KEY_USE_RIPPLE = "use_ripple"
         const val KEY_MOTION_BLUR = "motion_blur"
         const val KEY_MOTION_BLUR_SCALE = "motion_blur_scale"
         const val KEY_ONLINE_HELP_MEDIA = "online_help_media"
@@ -354,13 +355,7 @@ class SettingsRepository(
 
         // Island
 
-        const val KEY_WEATHER_UNITS = "weather_units"
         private const val LEGACY_WEATHER_API_KEY_PREFIX = "weather_api_key"
-        const val WEATHER_UNITS_SYSTEM = "system"
-        const val WEATHER_UNITS_CELSIUS = "celsius"
-        const val WEATHER_UNITS_FAHRENHEIT = "fahrenheit"
-
-        // Status Glance
         const val KEY_STATUS_GLANCE_ENABLED = "status_glance_enabled"
         const val KEY_STATUS_GLANCE_USE_AUTO_DETECT = "status_glance_use_auto_detect"
         const val KEY_STATUS_GLANCE_OFFSET_X = "status_glance_offset_x"
@@ -670,62 +665,6 @@ class SettingsRepository(
     // Specific Getters with logic from ViewModel
 
     /**
-     * Executes the get notification lighting color mode operation.
-     * @return The resulting NotificationLightingColorMode data.
-    fun getNotificationLightingColorMode(): NotificationLightingColorMode {
-        return try {
-        } catch (e: Exception) {
-        }
-    }
-
-    /**
-     * Executes the get notification lighting glow sides operation.
-     * @return The resulting Set<NotificationLightingSide> data.
-    fun getNotificationLightingGlowSides(): Set<NotificationLightingSide> {
-        return if (json != null) {
-            try {
-            } catch (e: Exception) {
-            }
-        } else {
-        }
-    }
-
-    /**
-     * Executes the save notification lighting glow sides operation.
-     *
-     * @param sides [Set<NotificationLightingSide>] Target sides.
-    fun saveNotificationLightingGlowSides(sides: Set<NotificationLightingSide>) {
-        val json = gson.toJson(sides)
-    }
-
-    /**
-     * Executes the get notification lighting sweep position operation.
-     * @return The resulting NotificationLightingSweepPosition data.
-    fun getNotificationLightingSweepPosition(): NotificationLightingSweepPosition {
-        return try {
-        } catch (e: Exception) {
-        }
-    }
-
-    /**
-     * Executes the save notification lighting sweep position operation.
-     *
-     * @param position [NotificationLightingSweepPosition] Target position.
-    fun saveNotificationLightingSweepPosition(position: NotificationLightingSweepPosition) {
-    }
-
-    /**
-     * Executes the get notification lighting system mode operation.
-     * @return The resulting Int data.
-    fun getNotificationLightingSystemMode(): Int = getInt(KEY_EDGE_LIGHTING_SYSTEM_MODE, 0)
-
-    /**
-     * Executes the save notification lighting system mode operation.
-     *
-     * @param mode [Int] Target mode.
-    fun saveNotificationLightingSystemMode(mode: Int) = putInt(KEY_EDGE_LIGHTING_SYSTEM_MODE, mode)
-
-    /**
      * Executes the get freeze auto excluded apps operation.
      * @return The resulting Set<String> data.
      */
@@ -857,40 +796,6 @@ class SettingsRepository(
         putString(KEY_APP_ICON, appIcon.key)
     }
 
-    /**
-     * Executes the get calendar sync selected calendars operation.
-     * @return The resulting Set<String> data.
-    fun getCalendarSyncSelectedCalendars(): Set<String> {
-        return if (json != null) {
-            try {
-                gson.fromJson(json, Array<String>::class.java).toSet()
-            } catch (e: Exception) {
-                emptySet()
-            }
-        } else {
-            emptySet()
-        }
-    }
-
-    /**
-     * Executes the save calendar sync selected calendars operation.
-     *
-     * @param calendarIds [Set<String>] Target calendar ids.
-    fun saveCalendarSyncSelectedCalendars(calendarIds: Set<String>) {
-        val json = gson.toJson(calendarIds)
-    }
-
-    /**
-     * Executes the is calendar sync periodic enabled operation.
-     * @return The resulting Boolean data.
-    fun isCalendarSyncPeriodicEnabled(): Boolean = getBoolean(KEY_CALENDAR_SYNC_PERIODIC_ENABLED, false)
-
-    /**
-     * Executes the set calendar sync periodic enabled operation.
-     *
-     * @param enabled [Boolean] Target enabled.
-    fun setCalendarSyncPeriodicEnabled(enabled: Boolean) = putBoolean(KEY_CALENDAR_SYNC_PERIODIC_ENABLED, enabled)
-
     // App Selection Helper Generic
     private fun loadAppSelection(key: String): List<AppSelection> {
         val json = prefs.getString(key, null)
@@ -914,22 +819,6 @@ class SettingsRepository(
     }
 
     // Feature specific App selections
-
-    /**
-     * Executes the save notification lighting selected apps operation.
-     *
-     * @param apps [List<AppSelection>] Target apps.
-    fun saveNotificationLightingSelectedApps(apps: List<AppSelection>) = saveAppSelection(KEY_EDGE_LIGHTING_SELECTED_APPS, apps)
-
-    /**
-     * Executes the update notification lighting app selection operation.
-     *
-     * @param packageName [String] Target package name.
-     * @param enabled [Boolean] Target enabled.
-    fun updateNotificationLightingAppSelection(
-        packageName: String,
-        enabled: Boolean,
-    ) = updateAppSelection(KEY_EDGE_LIGHTING_SELECTED_APPS, packageName, enabled)
 
     /**
      * Executes the load dynamic night light selected apps operation.
@@ -1044,26 +933,6 @@ class SettingsRepository(
         packageName: String,
         enabled: Boolean,
     ) = updateAppSelection(KEY_FREEZE_SELECTED_APPS, packageName, enabled)
-
-    /**
-     * Executes the load flashlight pulse selected apps operation.
-    fun loadFlashlightPulseSelectedApps() = loadAppSelection(KEY_FLASHLIGHT_PULSE_SELECTED_APPS)
-
-    /**
-     * Executes the save flashlight pulse selected apps operation.
-     *
-     * @param apps [List<AppSelection>] Target apps.
-    fun saveFlashlightPulseSelectedApps(apps: List<AppSelection>) = saveAppSelection(KEY_FLASHLIGHT_PULSE_SELECTED_APPS, apps)
-
-    /**
-     * Executes the update flashlight pulse app selection operation.
-     *
-     * @param packageName [String] Target package name.
-     * @param enabled [Boolean] Target enabled.
-    fun updateFlashlightPulseAppSelection(
-        packageName: String,
-        enabled: Boolean,
-    ) = updateAppSelection(KEY_FLASHLIGHT_PULSE_SELECTED_APPS, packageName, enabled)
 
     /**
      * Executes the load notification glance selected apps operation.
@@ -1292,20 +1161,6 @@ class SettingsRepository(
         }
     }
 
-    /**
-     * Executes the save maps discovered channels operation.
-     *
-     * @param channels [List<com.sameerasw.essentials.domain.model.MapsChannel>] Target channels.
-     */
-    fun saveMapsDiscoveredChannels(channels: List<com.sameerasw.essentials.domain.model.MapsChannel>) {
-        val json = gson.toJson(channels)
-        putString(KEY_MAPS_DISCOVERED_CHANNELS, json)
-    }
-
-    /**
-     * Executes the load maps detection channels operation.
-     * @return The resulting Set<String> data.
-     */
     fun loadMapsDetectionChannels(): Set<String> {
         val json = prefs.getString(KEY_MAPS_DETECTION_CHANNELS, null)
         return if (json != null) {
@@ -1765,115 +1620,6 @@ class SettingsRepository(
      * @param token [String] Target token.
      */
     fun setShizukuAuthToken(token: String) = putString(KEY_SHIZUKU_AUTH_TOKEN, token)
-
-    /**
-
-    /**
-     * Executes the set pixel searchbar type operation.
-     *
-
-    /**
-
-    /**
-     * Executes the set pixel searchbar date format operation.
-     *
-
-    /**
-
-    /**
-     * Executes the set pixel searchbar background pill operation.
-     *
-
-    /**
-
-    /**
-     * Executes the set pixel searchbar widget id operation.
-     *
-
-    /**
-
-    /**
-     * Executes the set pixel searchbar widget provider operation.
-     *
-
-    /**
-
-    /**
-     * Executes the set pixel searchbar scraped line1 operation.
-     *
-
-    /**
-
-    /**
-     * Executes the set pixel searchbar scraped line2 operation.
-     *
-
-    /**
-
-    /**
-     * Executes the set pixel searchbar widget padding h operation.
-     *
-
-    /**
-
-    /**
-     * Executes the set pixel searchbar widget padding v operation.
-     *
-
-    /**
-
-    /**
-     * Executes the set pixel searchbar tap action enabled operation.
-     *
-
-    /**
-
-    /**
-
-    /**
-
-    /**
-     * Executes the set pixel searchbar music title operation.
-     *
-
-    /**
-
-    /**
-     * Executes the set pixel searchbar music artist operation.
-     *
-
-    /**
-
-    /**
-     * Executes the set pixel searchbar music package operation.
-     *
-
-    /**
-     * Executes the get edge lighting sweep selected shapes operation.
-     * @return The resulting Set<String> data.
-    fun getEdgeLightingSweepSelectedShapes(): Set<String> {
-        val defaultShapes =
-            com.sameerasw.essentials.utils.AmbientMusicShapeHelper.allShapesWithNames
-                .map { it.first }
-                .toSet()
-        return if (json != null) {
-            try {
-                gson.fromJson(json, Array<String>::class.java).toSet()
-            } catch (e: Exception) {
-                defaultShapes
-            }
-        } else {
-            defaultShapes
-        }
-    }
-
-    /**
-     * Executes the save edge lighting sweep selected shapes operation.
-     *
-     * @param shapes [Set<String>] Target shapes.
-    fun saveEdgeLightingSweepSelectedShapes(shapes: Set<String>) {
-        val json = gson.toJson(shapes)
-    }
 
     /**
      * Executes the remove tracked repo operation.
@@ -3027,23 +2773,6 @@ class SettingsRepository(
         }
     }
 
-    private fun getCameraPlacementString(baseKey: String, default: String, useOrientation: Boolean): String {
-        val displayKey = "$baseKey@${getDisplayProfileId()}"
-        return when {
-            useOrientation && contains(orientationKey(baseKey)) -> getString(orientationKey(baseKey), default)
-            contains(displayKey) -> getString(displayKey, default)
-            else -> getString(baseKey, default)
-        } ?: default
-    }
-
-    private fun setCameraPlacementString(baseKey: String, value: String, useOrientation: Boolean) {
-        if (useOrientation) putString(orientationKey(baseKey), value)
-        else {
-            putString("$baseKey@${getDisplayProfileId()}", value)
-            putString(baseKey, value)
-        }
-    }
-
     private fun getCameraHidden(baseKey: String, default: Boolean): Boolean =
         getBoolean("$baseKey@${getDisplayProfileId()}", getBoolean(baseKey, default))
 
@@ -3062,12 +2791,6 @@ class SettingsRepository(
 
     // Island
 
-    fun getWeatherUnits(): String = getString(KEY_WEATHER_UNITS, WEATHER_UNITS_SYSTEM) ?: WEATHER_UNITS_SYSTEM
-    fun setWeatherUnits(units: String) = putString(KEY_WEATHER_UNITS, units)
-
-    // Ordered addresses; the first connected one with a battery reading is shown
-
-    // Status Glance
     fun isStatusGlanceEnabled(): Boolean = getBoolean(KEY_STATUS_GLANCE_ENABLED, false)
     fun setStatusGlanceEnabled(enabled: Boolean) = putBoolean(KEY_STATUS_GLANCE_ENABLED, enabled)
 

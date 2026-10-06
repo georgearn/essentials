@@ -32,7 +32,6 @@ import com.sameerasw.essentials.data.repository.SettingsRepository
 import com.sameerasw.essentials.domain.HapticFeedbackType
 import com.sameerasw.essentials.domain.model.AppSelection
 import com.sameerasw.essentials.services.InputEventListenerService
-import com.sameerasw.essentials.services.LiveUpdateSnoozer
 import com.sameerasw.essentials.services.NotificationListener
 import com.sameerasw.essentials.services.handlers.AmbientGlanceHandler
 import com.sameerasw.essentials.services.handlers.AodForceTurnOffHandler
@@ -207,9 +206,7 @@ class ScreenOffAccessibilityService :
 
     private val preferenceChangeListener =
         android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-            if (key == SettingsRepository.KEY_ISLAND_HIDE_LIVE_UPDATES) {
-                LiveUpdateSnoozer.onSettingChanged()
-            } else if (key == "circle_to_search_gesture_enabled" ||
+            if (key == "circle_to_search_gesture_enabled" ||
                 key == "circle_to_search_gesture_height" ||
                 key == "circle_to_search_gesture_width" ||
                 key == "circle_to_search_preview_enabled"
@@ -251,12 +248,6 @@ class ScreenOffAccessibilityService :
                 if (key == SettingsRepository.KEY_AOD_WALLPAPER_MEDIA_EXCLUDED_APPS) {
                     statusGlanceHandler.updateState()
                 }
-            } else if (key?.startsWith("duo_") == true ||
-                key == SettingsRepository.KEY_DUO_ENABLED ||
-                key == SettingsRepository.KEY_ENABLE_UNSUPPORTED_FEATURES
-            ) {
-            } else if (key == SettingsRepository.KEY_ISLAND_SUPPRESS_SYSTEM_HEADS_UP) {
-                SettingsRepository(this).applyHeadsUpSuppression()
             } else if (key?.startsWith("status_glance_") == true ||
                 key == SettingsRepository.KEY_STATUS_GLANCE_ENABLED ||
                 key == SettingsRepository.KEY_STATUS_GLANCE_USE_AUTO_DETECT ||
@@ -473,7 +464,6 @@ class ScreenOffAccessibilityService :
             unregisterReceiver(screenReceiver)
         } catch (_: Exception) {
         }
-        LiveUpdateSnoozer.release()
         flashlightHandler.unregister()
         ambientGlanceHandler.removeOverlay()
         aodForceTurnOffHandler.removeOverlay()

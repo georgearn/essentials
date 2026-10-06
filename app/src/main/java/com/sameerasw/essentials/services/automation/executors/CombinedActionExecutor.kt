@@ -29,10 +29,6 @@ import com.sameerasw.essentials.R
 import com.sameerasw.essentials.data.repository.SettingsRepository
 import com.sameerasw.essentials.domain.HapticFeedbackType
 import com.sameerasw.essentials.domain.diy.Action
-import com.sameerasw.essentials.domain.model.DashConfig
-import com.sameerasw.essentials.domain.model.RippleConfig
-import com.sameerasw.essentials.utils.overlay.fromPrefs
-import com.sameerasw.essentials.utils.overlay.writeTo
 import com.sameerasw.essentials.services.NotificationListener
 import com.sameerasw.essentials.services.tiles.ScreenOffAccessibilityService
 import com.sameerasw.essentials.utils.DeviceLockUtils

@@ -21,7 +21,6 @@ import androidx.appfunctions.AppFunctionSerializable
  * @param isCaffeinateActive True if caffeinate display awake mode is active.
  * @param isFlashlightOn True if camera torch is on.
  * @param isAodEnabled True if Always On Display is enabled.
- * @param isNotificationLightingEnabled True if edge lighting for notifications is enabled.
  */
 @Keep
 @AppFunctionSerializable(isDescribedByKDoc = true)
@@ -32,5 +31,4 @@ data class DeviceStatusResponse(
     val isCaffeinateActive: Boolean,
     val isFlashlightOn: Boolean,
     val isAodEnabled: Boolean,
-    val isNotificationLightingEnabled: Boolean,
 )
