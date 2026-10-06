@@ -608,7 +608,6 @@
             android:exported="false"
             android:foregroundServiceType="specialUse" />
 
-
         <service
             android:name=".services.EssentialsRecognitionService"
             android:exported="true"
@@ -1395,15 +1394,6 @@
             android:permission="com.sameerasw.essentials.permission.EXTERNAL_CONTROL">
             <intent-filter>
                 <action android:name="com.sameerasw.essentials.action.EXTERNAL_CONTROL" />
-            </intent-filter>
-        </receiver>
-
-        <receiver
-            android:name=".services.CallReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.PHONE_STATE" />
-                <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
             </intent-filter>
         </receiver>
 

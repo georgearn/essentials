@@ -236,7 +236,6 @@ class FeatureSettingsActivity : AppCompatActivity() {
                     val isAccessibilityEnabled by viewModel.isAccessibilityEnabled
                     val isWriteSecureSettingsEnabled by viewModel.isWriteSecureSettingsEnabled
                     val isOverlayPermissionGranted by viewModel.isOverlayPermissionGranted
-                    val isNotificationLightingAccessibilityEnabled by viewModel.isNotificationLightingAccessibilityEnabled
                     val isNotificationListenerEnabled by viewModel.isNotificationListenerEnabled
                     val isReadPhoneStateEnabled by viewModel.isReadPhoneStateEnabled
                     val isShizukuPermissionGranted by viewModel.isShizukuPermissionGranted
@@ -272,16 +271,6 @@ class FeatureSettingsActivity : AppCompatActivity() {
                         }
                     }
 
-                    // FAB State for Notification Lighting
-                    var fabExpanded by remember { mutableStateOf(true) }
-                    LaunchedEffect(featureId) {
-                        if (featureId == "Notification lighting") {
-                            fabExpanded = true
-                            delay(3000)
-                            fabExpanded = false
-                        }
-                    }
-
                     // Help Sheet State
                     var showHelpSheet by remember { mutableStateOf(false) }
                     var showInstructionsSheet by remember { mutableStateOf(false) }
@@ -297,7 +286,6 @@ class FeatureSettingsActivity : AppCompatActivity() {
                         isAccessibilityEnabled,
                         isWriteSecureSettingsEnabled,
                         isOverlayPermissionGranted,
-                        isNotificationLightingAccessibilityEnabled,
                         isNotificationListenerEnabled,
                         isReadPhoneStateEnabled,
                         isShizukuPermissionGranted,
@@ -306,11 +294,6 @@ class FeatureSettingsActivity : AppCompatActivity() {
                             when (featureId) {
                                 "Screen off widget" -> !isAccessibilityEnabled
                                 "Statusbar icons" -> !isWriteSecureSettingsEnabled
-                                "Notification lighting" ->
-                                    !isOverlayPermissionGranted ||
-                                        !isNotificationLightingAccessibilityEnabled ||
-                                        !isNotificationListenerEnabled
-                                "Flashlight pulse" -> !isNotificationListenerEnabled
                                 "Notification Sync" -> !isNotificationListenerEnabled
                                 "Button remap" -> !isAccessibilityEnabled
                                 "Pocket mode" -> !isAccessibilityEnabled
@@ -583,12 +566,9 @@ class FeatureSettingsActivity : AppCompatActivity() {
                                                             "AOD wallpaper",
                                                             "Essentials On Display",
                                                             "Lock screen clock",
-                                                            "Maps power saving mode",
                                                         ),
                                                         listOf(
                                                             "Statusbar icons",
-                                                            "Duo",
-                                                            "Island",
                                                             "Status glance",
                                                         ),
                                                         listOf(
@@ -609,10 +589,6 @@ class FeatureSettingsActivity : AppCompatActivity() {
                                                 "Notifications" ->
                                                     listOf(
                                                         listOf(
-                                                            "Notification lighting",
-                                                            "Flashlight pulse",
-                                                        ),
-                                                        listOf(
                                                             "Notification snoozing",
                                                             "Snooze system notifications",
                                                         ),
@@ -620,9 +596,6 @@ class FeatureSettingsActivity : AppCompatActivity() {
 
                                                 "Widgets" ->
                                                     listOf(
-                                                        listOf(
-                                                            "Pixel Searchbar",
-                                                        ),
                                                         listOf(
                                                             "Screen off widget",
                                                             "Batteries",
@@ -649,26 +622,6 @@ class FeatureSettingsActivity : AppCompatActivity() {
                                                         ),
                                                         listOf(
                                                             "Battery notification",
-                                                        ),
-                                                    )
-
-                                                "Watch" ->
-                                                    listOf(
-                                                        listOf(
-                                                            "Watchface",
-                                                            "Complications",
-                                                            "Watch Controls",
-                                                            "Lock from Watch",
-                                                        ),
-                                                        listOf(
-                                                            "Calendar Sync",
-                                                            "Sync sound mode",
-                                                            "Notification Sync",
-                                                            "Call Sync",
-                                                            "Sync location reached status",
-                                                        ),
-                                                        listOf(
-                                                            "Watch Wireless Debugging",
                                                         ),
                                                     )
 
@@ -719,11 +672,6 @@ class FeatureSettingsActivity : AppCompatActivity() {
                                                         when (child.id) {
                                                             "Screen off widget" -> !isAccessibilityEnabled
                                                             "Statusbar icons" -> !isWriteSecureSettingsEnabled
-                                                            "Notification lighting" ->
-                                                                !isOverlayPermissionGranted ||
-                                                                    !isNotificationLightingAccessibilityEnabled ||
-                                                                    !isNotificationListenerEnabled
-                                                            "Flashlight pulse" -> !isNotificationListenerEnabled
                                                             "Button remap" -> !isAccessibilityEnabled
                                                             "Dynamic night light" ->
                                                                 (if (viewModel.isUseUsageAccess.value) !viewModel.isUsageStatsPermissionGranted.value else !isAccessibilityEnabled) ||

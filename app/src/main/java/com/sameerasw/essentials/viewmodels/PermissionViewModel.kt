@@ -27,7 +27,6 @@ class PermissionViewModel : ViewModel() {
     val isShizukuAvailable = mutableStateOf(false)
     val isNotificationListenerEnabled = mutableStateOf(false)
     val isOverlayPermissionGranted = mutableStateOf(false)
-    val isNotificationLightingAccessibilityEnabled = mutableStateOf(false)
 
     /**
      * Refreshes all system and app permissions status.
@@ -44,7 +43,5 @@ class PermissionViewModel : ViewModel() {
         isNotificationListenerEnabled.value =
             PermissionUtils.hasNotificationListenerPermission(context)
         isOverlayPermissionGranted.value = PermissionUtils.canDrawOverlays(context)
-        isNotificationLightingAccessibilityEnabled.value =
-            PermissionUtils.isNotificationLightingAccessibilityServiceEnabled(context)
     }
 }

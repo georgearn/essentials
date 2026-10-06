@@ -51,7 +51,6 @@ import com.sameerasw.essentials.data.repository.SettingsRepository
 import com.sameerasw.essentials.data.repository.UpdateRepository
 import com.sameerasw.essentials.utils.LogManager
 import com.sameerasw.essentials.domain.HapticFeedbackType
-import com.sameerasw.essentials.domain.MapsState
 import com.sameerasw.essentials.domain.diy.Action
 import com.sameerasw.essentials.domain.model.AppIcon
 import com.sameerasw.essentials.domain.model.AppSelection
@@ -83,7 +82,6 @@ import com.sameerasw.essentials.utils.RootUtils
 import com.sameerasw.essentials.utils.ShellUtils
 import com.sameerasw.essentials.utils.ShizukuUtils
 import com.sameerasw.essentials.utils.SurfaceFlingerControl
-import com.sameerasw.essentials.utils.TestNotificationUtil
 import com.sameerasw.essentials.utils.UpdateNotificationHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -127,34 +125,6 @@ class MainViewModel : ViewModel() {
     val isSmartPixelsDisableOnCastEnabled = mutableStateOf(true)
 
     val isFoldableCameraDevice = mutableStateOf(false)
-    val islandBatteryIdleColor = mutableStateOf("#FFFFFF")
-
-    val islandCameraOffsetX = mutableFloatStateOf(50f)
-    val islandCameraOffsetY = mutableFloatStateOf(3f)
-    val islandCameraSize = mutableFloatStateOf(1.0f)
-    val islandMaxWidth = mutableFloatStateOf(360f)
-    val islandCutoutGap = mutableFloatStateOf(6f)
-    val islandExpandedWidth = mutableFloatStateOf(360f)
-    val islandExpandedRoundness = mutableFloatStateOf(24f)
-    val islandFontScale = mutableFloatStateOf(1f)
-    val islandMaxItems = mutableStateOf(2)
-    val islandLandscapeTopSpacing = mutableFloatStateOf(0f)
-    val islandExpandedScale = mutableFloatStateOf(1f)
-    val islandAlarmWindowHours = mutableIntStateOf(12)
-    val islandDevicesBatteryOrder = mutableStateOf<List<String>>(emptyList())
-    val islandExpandedPadding = mutableFloatStateOf(16f)
-    val islandExpandedTopPadding = mutableFloatStateOf(0f)
-    val islandExpandedBottomPadding = mutableFloatStateOf(12f)
-    val islandExpandedTimeoutMs = mutableLongStateOf(0L)
-    val islandTimeoutMs = mutableLongStateOf(4500L)
-    val islandCatchUpTimeoutMs = mutableLongStateOf(10000L)
-    val islandBorderOutlineThickness = mutableFloatStateOf(1f)
-    val islandPulseShadowSize = mutableFloatStateOf(0.5f)
-    val islandPulseShadowYShift = mutableFloatStateOf(0.35f)
-    val islandPulseShadowSpread = mutableFloatStateOf(2f)
-    val islandPulseShadowDurationMs = mutableFloatStateOf(1450f)
-    val islandLongPressAction = mutableStateOf<Action?>(null)
-    val islandSlideMode = mutableStateOf("none")
 
     val isStatusGlanceEnabled = mutableStateOf(false)
     val isStatusGlanceAutoDetect = mutableStateOf(true)
@@ -170,7 +140,6 @@ class MainViewModel : ViewModel() {
     val statusGlanceCalendarShowAllDay = mutableStateOf(false)
     val statusGlanceSelectedCalendarIds = mutableStateOf<Set<String>>(emptySet())
     val statusGlanceAvailableCalendars = mutableStateListOf<CalendarAccount>()
-    val islandCalendarEmojis = mutableStateOf<Map<Long, String>>(emptyMap())
     val isStatusGlanceShowMedia = mutableStateOf(true)
     val isStatusGlanceShowTime = mutableStateOf(true)
     val isStatusGlanceBackgroundPill = mutableStateOf(false)
@@ -192,8 +161,6 @@ class MainViewModel : ViewModel() {
 
     val snoozeChannels =
         mutableStateOf<List<com.sameerasw.essentials.domain.model.SnoozeChannel>>(emptyList())
-    val mapsChannels =
-        mutableStateOf<List<com.sameerasw.essentials.domain.model.MapsChannel>>(emptyList())
     val isSnoozeHeadsUpEnabled = mutableStateOf(false)
     val isFlashlightAlwaysTurnOffEnabled = mutableStateOf(false)
     val isFlashlightFadeEnabled = mutableStateOf(false)
@@ -237,7 +204,6 @@ class MainViewModel : ViewModel() {
     val pocketModeTriggerDelay = mutableFloatStateOf(3f) // seconds
     val isPocketModeLockScreenOnly = mutableStateOf(false)
     val isAutoAccessibilityEnabled = mutableStateOf(false)
-    val isNotificationGlanceSameAsLightingEnabled = mutableStateOf(true)
     val isOnboardingCompleted =
         mutableStateOf(true) // Default to true so it doesn't flash on first check if not loaded
     val isWhatsNewVisible = mutableStateOf(false)
@@ -800,10 +766,6 @@ class MainViewModel : ViewModel() {
                         appContext?.let { loadSnoozeChannels(it) }
                     }
 
-                    SettingsRepository.KEY_MAPS_DISCOVERED_CHANNELS, SettingsRepository.KEY_MAPS_DETECTION_CHANNELS -> {
-                        appContext?.let { loadMapsChannels(it) }
-                    }
-
                     SettingsRepository.KEY_SNOOZE_HEADS_UP_ENABLED -> {
                         isSnoozeHeadsUpEnabled.value = settingsRepository.getBoolean(key)
                     }
@@ -935,10 +897,6 @@ class MainViewModel : ViewModel() {
                     SettingsRepository.KEY_POCKET_MODE_LOCK_SCREEN_ONLY ->
                         isPocketModeLockScreenOnly.value =
                             settingsRepository.getBoolean(key)
-
-                    SettingsRepository.KEY_NOTIFICATION_GLANCE_SAME_AS_LIGHTING ->
-                        isNotificationGlanceSameAsLightingEnabled.value =
-                            settingsRepository.getBoolean(key, true)
 
                     SettingsRepository.KEY_AUTO_ACCESSIBILITY_ENABLED ->
                         isAutoAccessibilityEnabled.value =
@@ -1788,7 +1746,6 @@ class MainViewModel : ViewModel() {
         statusGlanceDoubleTapAction.value = settingsRepository.getStatusGlanceDoubleTapAction()
         statusGlanceLongPressAction.value = settingsRepository.getStatusGlanceLongPressAction()
         loadSnoozeChannels(context)
-        loadMapsChannels(context)
         isSnoozeHeadsUpEnabled.value =
             settingsRepository.getBoolean(SettingsRepository.KEY_SNOOZE_HEADS_UP_ENABLED)
         isFlashlightAlwaysTurnOffEnabled.value =
@@ -2035,11 +1992,6 @@ class MainViewModel : ViewModel() {
             settingsRepository.getFloat(SettingsRepository.KEY_POCKET_MODE_TRIGGER_DELAY, 3f)
         isPocketModeLockScreenOnly.value =
             settingsRepository.getBoolean(SettingsRepository.KEY_POCKET_MODE_LOCK_SCREEN_ONLY)
-        isNotificationGlanceSameAsLightingEnabled.value =
-            settingsRepository.getBoolean(
-                SettingsRepository.KEY_NOTIFICATION_GLANCE_SAME_AS_LIGHTING,
-                true,
-            )
         scaleAnimationsMode.value = settingsRepository.getScaleAnimationsMode()
         isTouchSensitivityEnabled.value = settingsRepository.getTouchSensitivityEnabled()
         isAutoRotateEnabled.value = settingsRepository.getAutoRotateEnabled()
@@ -6031,40 +5983,6 @@ class MainViewModel : ViewModel() {
         loadSnoozeChannels(context)
     }
 
-    private fun loadMapsChannels(context: Context) {
-        val discovered = settingsRepository.loadMapsDiscoveredChannels()
-        val detectionIds = settingsRepository.loadMapsDetectionChannels()
-
-        mapsChannels.value =
-            discovered
-                .map { channel ->
-                    channel.copy(isEnabled = detectionIds.contains(channel.id))
-                }.distinctBy { it.id }
-                .sortedBy { it.name }
-    }
-
-    /**
-     * Executes the set maps channel detected operation.
-     *
-     * @param channelId [String] Target channel id.
-     * @param detected [Boolean] Target detected.
-     * @param context [Context] Target context.
-     */
-    fun setMapsChannelDetected(
-        channelId: String,
-        detected: Boolean,
-        context: Context,
-    ) {
-        val currentDetected = settingsRepository.loadMapsDetectionChannels().toMutableSet()
-        if (detected) {
-            currentDetected.add(channelId)
-        } else {
-            currentDetected.remove(channelId)
-        }
-        settingsRepository.saveMapsDetectionChannels(currentDetected)
-        loadMapsChannels(context)
-    }
-
     /**
      * Executes the set snooze heads up enabled operation.
      *
@@ -6647,19 +6565,6 @@ class MainViewModel : ViewModel() {
     fun setPocketModeLockScreenOnly(enabled: Boolean) {
         settingsRepository.putBoolean(SettingsRepository.KEY_POCKET_MODE_LOCK_SCREEN_ONLY, enabled)
         isPocketModeLockScreenOnly.value = enabled
-    }
-
-    /**
-     * Executes the set notification glance same as lighting enabled operation.
-     *
-     * @param enabled [Boolean] Target enabled.
-     */
-    fun setNotificationGlanceSameAsLightingEnabled(enabled: Boolean) {
-        isNotificationGlanceSameAsLightingEnabled.value = enabled
-        settingsRepository.putBoolean(
-            SettingsRepository.KEY_NOTIFICATION_GLANCE_SAME_AS_LIGHTING,
-            enabled,
-        )
     }
 
     /**

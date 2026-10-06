@@ -115,26 +115,6 @@ object PermissionUtils {
         return dpm.isAdminActive(adminComponent)
     }
 
-    /**
-     * Executes the is notification lighting accessibility service enabled operation.
-     *
-     * @param context [Context] Target context.
-     * @return The resulting Boolean data.
-     */
-    fun isNotificationLightingAccessibilityServiceEnabled(context: Context): Boolean =
-        try {
-            val enabledServices =
-                Settings.Secure.getString(
-                    context.contentResolver,
-                    Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
-                )
-            val serviceName =
-                "${context.packageName}/${ScreenOffAccessibilityService::class.java.name}"
-            enabledServices?.contains(serviceName) == true
-        } catch (e: Exception) {
-            false
-        }
-
     fun hasBubblePermission(context: Context): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return false
         val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as? android.app.NotificationManager ?: return false

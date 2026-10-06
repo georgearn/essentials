@@ -13,7 +13,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.sameerasw.essentials.data.repository.SettingsRepository
-import com.sameerasw.essentials.domain.MapsState
 import com.sameerasw.essentials.utils.ShellUtils
 import com.sameerasw.essentials.utils.StatusBarManager
 
@@ -47,14 +46,6 @@ class SecurityReceiver : BroadcastReceiver() {
 
         when (intent.action) {
             Intent.ACTION_SCREEN_OFF -> {
-                // Maps Power Saving logic (migrated)
-                if (MapsState.isEnabled && MapsState.hasNavigationNotification) {
-                    ShellUtils.runCommand(
-                        context,
-                        "am start -n com.google.android.apps.maps/com.google.android.apps.gmm.features.minmode.MinModeActivity",
-                    )
-                }
-
                 // New Disable QS logic
                 if (isDisableQsEnabled) {
                     StatusBarManager.requestDisable(

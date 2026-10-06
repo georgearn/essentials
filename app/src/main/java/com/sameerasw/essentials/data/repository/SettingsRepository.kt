@@ -158,8 +158,6 @@ class SettingsRepository(
 
         const val KEY_WIDGET_ENABLED = "widget_enabled"
         const val KEY_STATUS_BAR_ICON_CONTROL_ENABLED = "status_bar_icon_control_enabled"
-        const val KEY_MAPS_DISCOVERED_CHANNELS = "maps_discovered_channels"
-        const val KEY_MAPS_DETECTION_CHANNELS = "maps_detection_channels"
         const val KEY_APP_CUSTOM_COLORS = "app_custom_colors"
         const val KEY_LOCK_SCREEN_WALLPAPER_SOURCE = "lock_screen_wallpaper_source"
 
@@ -313,7 +311,6 @@ class SettingsRepository(
         const val KEY_WINDOW_ANIMATION_SCALE = "window_animation_scale"
         const val KEY_SMALLEST_WIDTH = "smallest_width"
         const val KEY_NOTIFICATION_GLANCE_ENABLED = "notification_glance_enabled"
-        const val KEY_NOTIFICATION_GLANCE_SAME_AS_LIGHTING = "notification_glance_same_as_lighting"
         const val KEY_NOTIFICATION_GLANCE_SELECTED_APPS = "notification_glance_selected_apps"
         const val KEY_AOD_FORCE_TURN_OFF_ENABLED = "aod_force_turn_off_enabled"
         const val KEY_AOD_WALLPAPER_ENABLED = "aod_wallpaper_enabled"
@@ -1144,50 +1141,6 @@ class SettingsRepository(
     }
 
     // Maps Channels Helper
-    fun loadMapsDiscoveredChannels(): List<com.sameerasw.essentials.domain.model.MapsChannel> {
-        val json = prefs.getString(KEY_MAPS_DISCOVERED_CHANNELS, null)
-        return if (json != null) {
-            try {
-                gson
-                    .fromJson(
-                        json,
-                        Array<com.sameerasw.essentials.domain.model.MapsChannel>::class.java,
-                    ).toList()
-            } catch (e: Exception) {
-                emptyList()
-            }
-        } else {
-            emptyList()
-        }
-    }
-
-    fun loadMapsDetectionChannels(): Set<String> {
-        val json = prefs.getString(KEY_MAPS_DETECTION_CHANNELS, null)
-        return if (json != null) {
-            try {
-                gson.fromJson(json, Array<String>::class.java).toSet()
-            } catch (e: Exception) {
-                emptySet()
-            }
-        } else {
-            // Default to navigation related channel IDs if none are selected yet
-            setOf(
-                "navigation_notification_channel",
-                "primary_navigation_channel_v1",
-                "primary_navigation_channel_v2",
-            )
-        }
-    }
-
-    /**
-     * Executes the save maps detection channels operation.
-     *
-     * @param channels [Set<String>] Target channels.
-     */
-    fun saveMapsDetectionChannels(channels: Set<String>) {
-        val json = gson.toJson(channels)
-        putString(KEY_MAPS_DETECTION_CHANNELS, json)
-    }
 
     // Config Export/Import
     fun getAllConfigsAsJsonString(): String {
@@ -1208,19 +1161,6 @@ class SettingsRepository(
 
                 p.all.forEach { (key, value) ->
                     if (key == "freeze_auto_excluded_apps" || key.endsWith("_selected_apps")) {
-                    }
-                    if (key == KEY_GITHUB_ACCESS_TOKEN ||
-                        key == KEY_GITHUB_WORKFLOW_TOKEN ||
-                        key == KEY_SHIZUKU_AUTH_TOKEN ||
-                        key.startsWith(LEGACY_WEATHER_API_KEY_PREFIX) ||
-                        key.startsWith("mac_battery_") ||
-                        key == "airsync_mac_connected" ||
-                        key == KEY_SNOOZE_DISCOVERED_CHANNELS ||
-                        key == KEY_MAPS_DISCOVERED_CHANNELS ||
-                        key == KEY_SHUT_UP_ORIGINAL_SETTINGS ||
-                        key == "battery_history_points"
-                    ) {
-                        return@forEach
                     }
 
                     val type =
@@ -1284,17 +1224,6 @@ class SettingsRepository(
 
                 // Preserve sensitive or volatile local state not present in backups
                 val preservedValues = mutableMapOf<String, Any?>()
-                val keysToPreserve =
-                    listOf(
-                        KEY_GITHUB_ACCESS_TOKEN,
-                        KEY_GITHUB_WORKFLOW_TOKEN,
-                        KEY_SHIZUKU_AUTH_TOKEN,
-                        LEGACY_WEATHER_API_KEY_PREFIX,
-                        "airsync_mac_connected",
-                        KEY_SNOOZE_DISCOVERED_CHANNELS,
-                        KEY_MAPS_DISCOVERED_CHANNELS,
-                        KEY_SHUT_UP_ORIGINAL_SETTINGS,
-                    )
                 val macBatteryKeys = p.all.keys.filter { it.startsWith("mac_battery_") }
                 (keysToPreserve + macBatteryKeys).forEach { key ->
                     if (p.contains(key)) {

@@ -135,7 +135,6 @@ fun SetupFeatures(
     val isShizukuPermissionGranted by viewModel.isShizukuPermissionGranted
     val isNotificationListenerEnabled by viewModel.isNotificationListenerEnabled
     val isOverlayPermissionGranted by viewModel.isOverlayPermissionGranted
-    val isNotificationLightingAccessibilityEnabled by viewModel.isNotificationLightingAccessibilityEnabled
     val isRootEnabled by viewModel.isRootEnabled
     val isRootPermissionGranted by viewModel.isRootPermissionGranted
     val isReadPhoneStateEnabled by viewModel.isReadPhoneStateEnabled
@@ -182,7 +181,6 @@ fun SetupFeatures(
         isRootPermissionGranted,
         isNotificationListenerEnabled,
         isOverlayPermissionGranted,
-        isNotificationLightingAccessibilityEnabled,
         isReadPhoneStateEnabled,
         currentFeature,
     ) {
@@ -229,58 +227,6 @@ fun SetupFeatures(
                                         viewModel.canWriteSecureSettings(context)
                                 },
                                 isGranted = isWriteSecureSettingsEnabled,
-                            ),
-                        )
-                    }
-                }
-
-                R.string.feat_notification_lighting_title -> {
-                    if (!isOverlayPermissionGranted) {
-                        missing.add(
-                            PermissionItem(
-                                iconRes = R.drawable.rounded_magnify_fullscreen_24,
-                                title = R.string.perm_overlay_title,
-                                description = R.string.perm_overlay_desc,
-                                dependentFeatures = PermissionRegistry.getFeatures("DRAW_OVERLAYS"),
-                                actionLabel = R.string.perm_action_grant,
-                                action = {
-                                    val intent =
-                                        Intent(
-                                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                                            "package:${context.packageName}".toUri(),
-                                        )
-                                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                    context.startActivity(intent)
-                                },
-                                isGranted = isOverlayPermissionGranted,
-                            ),
-                        )
-                    }
-                    if (!isNotificationLightingAccessibilityEnabled) {
-                        missing.add(
-                            PermissionItem(
-                                iconRes = R.drawable.rounded_settings_accessibility_24,
-                                title = R.string.perm_accessibility_title,
-                                description = R.string.perm_accessibility_desc_lighting,
-                                dependentFeatures = PermissionRegistry.getFeatures("ACCESSIBILITY"),
-                                actionLabel = R.string.perm_action_enable,
-                                action = {
-                                    PermissionUtils.openAccessibilitySettings(context)
-                                },
-                                isGranted = isNotificationLightingAccessibilityEnabled,
-                            ),
-                        )
-                    }
-                    if (!isNotificationListenerEnabled) {
-                        missing.add(
-                            PermissionItem(
-                                iconRes = R.drawable.rounded_notifications_unread_24,
-                                title = R.string.perm_notif_listener_title,
-                                description = R.string.perm_notif_listener_desc_lighting,
-                                dependentFeatures = PermissionRegistry.getFeatures("NOTIFICATION_LISTENER"),
-                                actionLabel = R.string.perm_action_grant,
-                                action = { viewModel.requestNotificationListenerPermission(context) },
-                                isGranted = isNotificationListenerEnabled,
                             ),
                         )
                     }
@@ -499,22 +445,6 @@ fun SetupFeatures(
                     }
                 }
 
-                R.string.flashlight_pulse_title -> {
-                    if (!isNotificationListenerEnabled) {
-                        missing.add(
-                            PermissionItem(
-                                iconRes = R.drawable.rounded_notifications_unread_24,
-                                title = R.string.perm_notif_listener_title,
-                                description = R.string.perm_notif_listener_desc_lighting,
-                                dependentFeatures = PermissionRegistry.getFeatures("NOTIFICATION_LISTENER"),
-                                actionLabel = R.string.perm_action_grant,
-                                action = { viewModel.requestNotificationListenerPermission(context) },
-                                isGranted = isNotificationListenerEnabled,
-                            ),
-                        )
-                    }
-                }
-
                 R.string.feat_essentials_on_display_title -> {
                     if (!isAccessibilityEnabled) {
                         missing.add(
@@ -593,47 +523,6 @@ fun SetupFeatures(
                                     viewModel.canWriteSecureSettings(context)
                             },
                             isGranted = isWriteSecureSettingsEnabled,
-                        ),
-                    )
-
-                R.string.feat_notification_lighting_title ->
-                    listOf(
-                        PermissionItem(
-                            iconRes = R.drawable.rounded_magnify_fullscreen_24,
-                            title = R.string.perm_overlay_title,
-                            description = R.string.perm_overlay_desc,
-                            dependentFeatures = PermissionRegistry.getFeatures("DRAW_OVERLAYS"),
-                            actionLabel = R.string.perm_action_grant,
-                            action = {
-                                val intent =
-                                    Intent(
-                                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                                        "package:${context.packageName}".toUri(),
-                                    )
-                                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                context.startActivity(intent)
-                            },
-                            isGranted = isOverlayPermissionGranted,
-                        ),
-                        PermissionItem(
-                            iconRes = R.drawable.rounded_settings_accessibility_24,
-                            title = R.string.perm_accessibility_title,
-                            description = R.string.perm_accessibility_desc_lighting,
-                            dependentFeatures = PermissionRegistry.getFeatures("ACCESSIBILITY"),
-                            actionLabel = R.string.perm_action_enable,
-                            action = {
-                                PermissionUtils.openAccessibilitySettings(context)
-                            },
-                            isGranted = isNotificationLightingAccessibilityEnabled,
-                        ),
-                        PermissionItem(
-                            iconRes = R.drawable.rounded_notifications_unread_24,
-                            title = R.string.perm_notif_listener_title,
-                            description = R.string.perm_notif_listener_desc_lighting,
-                            dependentFeatures = PermissionRegistry.getFeatures("NOTIFICATION_LISTENER"),
-                            actionLabel = R.string.perm_action_grant,
-                            action = { viewModel.requestNotificationListenerPermission(context) },
-                            isGranted = isNotificationListenerEnabled,
                         ),
                     )
 
@@ -789,19 +678,6 @@ fun SetupFeatures(
                             action = { viewModel.requestReadPhoneStatePermission(context as Activity) },
                             isGranted = isReadPhoneStateEnabled,
                         ),
-                        PermissionItem(
-                            iconRes = R.drawable.rounded_notifications_unread_24,
-                            title = R.string.perm_notif_listener_title,
-                            description = R.string.perm_notif_listener_desc_lighting,
-                            dependentFeatures = PermissionRegistry.getFeatures("NOTIFICATION_LISTENER"),
-                            actionLabel = R.string.perm_action_grant,
-                            action = { viewModel.requestNotificationListenerPermission(context) },
-                            isGranted = isNotificationListenerEnabled,
-                        ),
-                    )
-
-                R.string.flashlight_pulse_title ->
-                    listOf(
                         PermissionItem(
                             iconRes = R.drawable.rounded_notifications_unread_24,
                             title = R.string.perm_notif_listener_title,

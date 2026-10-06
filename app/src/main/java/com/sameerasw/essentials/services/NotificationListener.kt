@@ -12,9 +12,6 @@ package com.sameerasw.essentials.services
 import android.graphics.drawable.Icon
 import android.content.pm.LauncherApps
 import com.sameerasw.essentials.utils.notification.NotificationRepostFilter
-import com.sameerasw.essentials.utils.chronometer.ChronometerRepository
-import com.sameerasw.essentials.utils.call.CallNotificationParser
-import com.sameerasw.essentials.utils.call.CallStateRepository
 import android.app.Notification
 import android.app.Person
 import android.content.Context
@@ -35,10 +32,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import com.sameerasw.essentials.data.repository.SettingsRepository
 import com.sameerasw.essentials.domain.HapticFeedbackType
-import com.sameerasw.essentials.domain.MapsState
-import com.sameerasw.essentials.domain.model.ActiveNotificationAlert
 import com.sameerasw.essentials.domain.model.NotificationActionItem
-import com.sameerasw.essentials.domain.model.ProgressNotificationData
 import com.sameerasw.essentials.services.receivers.FlashlightActionReceiver
 import com.sameerasw.essentials.services.tiles.ScreenOffAccessibilityService
 import com.sameerasw.essentials.utils.AppColorUtil
@@ -50,18 +44,8 @@ import java.io.File
 import java.io.FileOutputStream
 
 class NotificationListener : NotificationListenerService() {
-    interface ProgressNotificationListener {
-        fun onProgressNotificationUpdated(data: ProgressNotificationData?)
-    }
-
-    interface NotificationAlertListener {
-        fun onNotificationAlertPosted(alert: ActiveNotificationAlert)
-        fun onNotificationAlertRemoved(key: String)
-    }
 
     companion object {
-        private const val PROGRESS_REFRESH_DEBOUNCE_MS = 250L
-
         const val ACTION_LIKE_CURRENT_SONG = "com.sameerasw.essentials.ACTION_LIKE_CURRENT_SONG"
         const val ACTION_REQUEST_AMBIENT_GLANCE =
             "com.sameerasw.essentials.ACTION_REQUEST_AMBIENT_GLANCE"
@@ -70,61 +54,6 @@ class NotificationListener : NotificationListenerService() {
         private var latestArtHash: Long = -1L
 
         var instance: NotificationListener? = null
-
-        private val progressListeners = mutableListOf<ProgressNotificationListener>()
-        private val alertListeners = mutableListOf<NotificationAlertListener>()
-
-        fun addNotificationAlertListener(listener: NotificationAlertListener) {
-            synchronized(alertListeners) {
-                if (!alertListeners.contains(listener)) {
-                    alertListeners.add(listener)
-                }
-            }
-        }
-
-        fun removeNotificationAlertListener(listener: NotificationAlertListener) {
-            synchronized(alertListeners) {
-                alertListeners.remove(listener)
-            }
-        }
-
-        fun notifyAlertPosted(alert: ActiveNotificationAlert) {
-            val listenersCopy = synchronized(alertListeners) { alertListeners.toList() }
-            listenersCopy.forEach { it.onNotificationAlertPosted(alert) }
-        }
-
-        fun notifyAlertRemoved(key: String) {
-            val listenersCopy = synchronized(alertListeners) { alertListeners.toList() }
-            listenersCopy.forEach { it.onNotificationAlertRemoved(key) }
-        }
-
-        fun dismissNotification(key: String) {
-            try {
-                instance?.cancelNotification(key)
-            } catch (_: Exception) {}
-        }
-
-        fun addProgressNotificationListener(listener: ProgressNotificationListener) {
-            synchronized(progressListeners) {
-                if (!progressListeners.contains(listener)) {
-                    progressListeners.add(listener)
-                }
-            }
-        }
-
-        fun removeProgressNotificationListener(listener: ProgressNotificationListener) {
-            synchronized(progressListeners) {
-                progressListeners.remove(listener)
-            }
-        }
-
-        fun notifyProgressListeners(data: ProgressNotificationData?) {
-            val listenersCopy = synchronized(progressListeners) { progressListeners.toList() }
-            listenersCopy.forEach { it.onProgressNotificationUpdated(data) }
-        }
-
-        fun getLatestProgressNotification(): ProgressNotificationData? =
-            instance?.extractLatestProgressNotification()
 
         fun getCachedBitmap(hash: Long): Bitmap? = if (latestArtHash == hash) latestArtBitmap else null
 
@@ -293,89 +222,17 @@ class NotificationListener : NotificationListenerService() {
             }
 
             // Calls already in progress when the listener (re)connects.
-            CallStateRepository.clearNotificationCalls()
-            safeActiveNotifications()?.filter { CallNotificationParser.isCall(it) && it.packageName != packageName }
-                ?.forEach { CallStateRepository.onCallNotificationPosted(applicationContext, it) }
-            ChronometerRepository.clear()
-            safeActiveNotifications()?.filter { it.packageName != packageName && ChronometerRepository.isCandidate(it) }
-                ?.forEach { ChronometerRepository.onPosted(applicationContext, it) }
 
             // Initial discovery from active notifications
             safeActiveNotifications()?.forEach { sbn ->
                 val pkg = sbn.packageName
                 val isSystem = pkg == "android" || pkg == "com.android.systemui"
-                val isMaps = pkg == "com.google.android.apps.maps"
 
                 if (isSystem) {
                     discoverSystemChannel(pkg, sbn.notification.channelId, sbn.user)
-                } else if (isMaps) {
-                    discoverMapsChannel(sbn.notification.channelId, sbn.user)
                 }
             }
         } catch (_: Exception) {
-        }
-    }
-
-    private fun discoverMapsChannel(
-        channelId: String?,
-        userHandle: android.os.UserHandle,
-    ) {
-        if (channelId.isNullOrBlank()) return
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            try {
-                val prefs =
-                    applicationContext.getSharedPreferences(
-                        "essentials_prefs",
-                        MODE_PRIVATE,
-                    )
-                val discoveredJson = prefs.getString("maps_discovered_channels", null)
-                val gson = com.google.gson.Gson()
-                val discoveredChannels: MutableList<com.sameerasw.essentials.domain.model.MapsChannel> =
-                    if (discoveredJson != null) {
-                        try {
-                            gson
-                                .fromJson(
-                                    discoveredJson,
-                                    Array<com.sameerasw.essentials.domain.model.MapsChannel>::class.java,
-                                ).toMutableList()
-                        } catch (_: Exception) {
-                            mutableListOf()
-                        }
-                    } else {
-                        mutableListOf()
-                    }
-
-                if (discoveredChannels.none { it.id == channelId }) {
-                    var foundName: String? = null
-                    try {
-                        val channels =
-                            getNotificationChannels("com.google.android.apps.maps", userHandle)
-                        val channel = channels.find { it.id == channelId }
-                        foundName = channel?.name?.toString()
-                    } catch (_: Exception) {
-                    }
-
-                    val name =
-                        if (!foundName.isNullOrBlank()) {
-                            foundName
-                        } else {
-                            channelId.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() }
-                        }
-
-                    discoveredChannels.add(
-                        com.sameerasw.essentials.domain.model.MapsChannel(
-                            channelId,
-                            name,
-                        ),
-                    )
-                    prefs
-                        .edit()
-                        .putString("maps_discovered_channels", gson.toJson(discoveredChannels))
-                        .apply()
-                }
-            } catch (_: Exception) {
-            }
         }
     }
 
@@ -496,8 +353,6 @@ class NotificationListener : NotificationListenerService() {
     override fun onDestroy() {
         super.onDestroy()
         instance = null
-        progressHandler.removeCallbacks(progressRefreshRunnable)
-        progressExecutor.shutdownNow()
         try {
             unregisterReceiver(likeActionReceiver)
         } catch (_: Exception) {
@@ -937,24 +792,12 @@ class NotificationListener : NotificationListenerService() {
         if (!hasReadableExtras(sbn)) return
 
         val isRepost = NotificationRepostFilter.isUnchangedRepost(sbn)
-        if (CallNotificationParser.isCall(sbn)) CallStateRepository.onCallNotificationPosted(applicationContext, sbn)
-        if (ChronometerRepository.isCandidate(sbn)) ChronometerRepository.onPosted(applicationContext, sbn)
         if (isOngoingScreenCaptureNotification(sbn)) {
             ScreenOffAccessibilityService.updateSmartPixelsState()
         }
         handleRespectNotifications(sbn)
 
         val extras = sbn.notification.extras
-        if (extras != null && (extras.getInt(Notification.EXTRA_PROGRESS_MAX, 0) > 0 || extras.containsKey(Notification.EXTRA_PROGRESS_INDETERMINATE))) {
-            scheduleProgressRefresh()
-        }
-
-        if (!isRepost && isHeadsUpNotification(sbn, rankingMap)) {
-            val alert = extractNotificationAlert(sbn)
-            if (alert != null) {
-                notifyAlertPosted(alert)
-            }
-        }
 
         val pm = getSystemService(POWER_SERVICE) as PowerManager
         val isReallyLocked =
@@ -987,13 +830,6 @@ class NotificationListener : NotificationListenerService() {
 
         val prefs =
             applicationContext.getSharedPreferences("essentials_prefs", MODE_PRIVATE)
-
-        // Maps navigation state update
-        if (sbn.packageName == "com.google.android.apps.maps") {
-            val channelId = sbn.notification.channelId
-            discoverMapsChannel(channelId, sbn.user)
-            MapsState.hasNavigationNotification = isNavigationNotification(sbn)
-        }
 
         // Handle Snooze System Notifications
         try {
@@ -1131,29 +967,10 @@ class NotificationListener : NotificationListenerService() {
         super.onNotificationRemoved(sbn, rankingMap, reason)
     }
 
-    fun feedSnoozedPosted(sbn: StatusBarNotification) {
-        if (sbn.packageName == packageName) return
-        if (CallNotificationParser.isCall(sbn)) CallStateRepository.onCallNotificationPosted(applicationContext, sbn)
-        if (ChronometerRepository.isCandidate(sbn)) ChronometerRepository.onPosted(applicationContext, sbn)
-        scheduleProgressRefresh()
-    }
-
-    fun feedSnoozedRemoved(sbn: StatusBarNotification) {
-        if (sbn.packageName == packageName) return
-        CallStateRepository.onCallNotificationRemoved(sbn.key)
-        ChronometerRepository.onRemoved(sbn.key)
-        scheduleProgressRefresh()
-    }
-
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
-        NotificationRepostFilter.forget(sbn.key)
-        CallStateRepository.onCallNotificationRemoved(sbn.key)
-        ChronometerRepository.onRemoved(sbn.key)
         unreadNotifications.remove(sbn.key)
         lastCallVibrateTime.remove(sbn.key)
-        notifyAlertRemoved(sbn.key)
         if (!hasReadableExtras(sbn)) {
-            scheduleProgressRefresh()
             return
         }
 
@@ -1163,8 +980,6 @@ class NotificationListener : NotificationListenerService() {
         ) {
             ScreenOffAccessibilityService.updateSmartPixelsState()
         }
-
-        scheduleProgressRefresh()
 
         // Trigger refresh if something is playing
         try {
@@ -1181,9 +996,6 @@ class NotificationListener : NotificationListenerService() {
         } catch (_: Exception) {
         }
 
-        if (sbn.packageName == "com.google.android.apps.maps") {
-            MapsState.hasNavigationNotification = false
-        }
         handleNotificationGlance(sbn, false)
     }
 
@@ -1270,22 +1082,6 @@ class NotificationListener : NotificationListenerService() {
         }
     }
 
-    private fun hasAllRequiredPermissions(): Boolean {
-        // Check overlay permission
-        if (!canDrawOverlays()) {
-            return false
-        }
-
-        // Check accessibility service is enabled - only required for Android 12+ AOD support
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (!isAccessibilityServiceEnabled()) {
-                return false
-            }
-        }
-
-        return true
-    }
-
     private fun canDrawOverlays(): Boolean = Settings.canDrawOverlays(applicationContext)
 
     private fun isAccessibilityServiceEnabled(): Boolean =
@@ -1301,58 +1097,6 @@ class NotificationListener : NotificationListenerService() {
         } catch (_: Exception) {
             false
         }
-
-    private fun isNavigationNotification(sbn: StatusBarNotification): Boolean {
-        val notification = sbn.notification
-        val channelId = notification.channelId
-
-        val prefs =
-            applicationContext.getSharedPreferences("essentials_prefs", MODE_PRIVATE)
-        val detectionChannelsJson = prefs.getString("maps_detection_channels", null)
-        val detectionChannels: Set<String> =
-            if (detectionChannelsJson != null) {
-                try {
-                    com.google.gson
-                        .Gson()
-                        .fromJson(detectionChannelsJson, Array<String>::class.java)
-                        .toSet()
-                } catch (_: Exception) {
-                    emptySet()
-                }
-            } else {
-                // Default known navigation channels
-                setOf(
-                    "navigation_notification_channel",
-                    "primary_navigation_channel_v1",
-                    "primary_navigation_channel_v2",
-                )
-            }
-
-        if (channelId != null &&
-            (
-                detectionChannels.contains(channelId) ||
-                    channelId.contains(
-                        "navigation",
-                        ignoreCase = true,
-                    )
-            )
-        ) {
-            return true
-        }
-
-        // 2. Fallback to category & persistence check
-        if (!isPersistentNotification(notification)) return false
-        return hasNavigationCategory(notification)
-    }
-
-    private fun isPersistentNotification(notification: Notification): Boolean =
-        (notification.flags and Notification.FLAG_ONGOING_EVENT) != 0
-
-    private fun hasNavigationCategory(notification: Notification): Boolean {
-        val category = notification.category ?: return false
-        val navigationRegex = Regex("(?i).*navigation.*")
-        return navigationRegex.containsMatchIn(category)
-    }
 
     private fun getMediaSessions(manager: android.media.session.MediaSessionManager): List<android.media.session.MediaController> {
         val componentName = android.content.ComponentName(this, NotificationListener::class.java)
@@ -1422,93 +1166,6 @@ class NotificationListener : NotificationListenerService() {
         }
     }
 
-    fun extractProgressNotification(sbn: StatusBarNotification): ProgressNotificationData? {
-        val notif = sbn.notification ?: return null
-        val extras = notif.extras ?: return null
-        val max = extras.getInt(Notification.EXTRA_PROGRESS_MAX, 0)
-        val current = extras.getInt(Notification.EXTRA_PROGRESS, 0)
-        val indeterminate = extras.getBoolean(Notification.EXTRA_PROGRESS_INDETERMINATE, false)
-
-        val hasProgress = max > 0 || (indeterminate && extras.containsKey(Notification.EXTRA_PROGRESS_INDETERMINATE))
-        if (!hasProgress) return null
-
-        val progressPct = if (max > 0) {
-            (current.toFloat() / max.toFloat() * 100f).coerceIn(0f, 100f)
-        } else {
-            50f
-        }
-
-        var bitmap: Bitmap? = null
-        try {
-            val largeIcon = notif.getLargeIcon()
-            if (largeIcon != null) {
-                val drawable = largeIcon.loadDrawable(this)
-                if (drawable != null) {
-                    bitmap = AppUtil.drawableToBitmap(drawable)
-                }
-            }
-        } catch (_: Exception) {}
-
-        if (bitmap == null) {
-            try {
-                val smallIcon = notif.smallIcon
-                if (smallIcon != null) {
-                    val drawable = smallIcon.loadDrawable(this)
-                    if (drawable != null) {
-                        bitmap = AppUtil.drawableToBitmap(drawable)
-                    }
-                }
-            } catch (_: Exception) {}
-        }
-
-        if (bitmap == null) {
-            try {
-                val appIconDrawable = packageManager.getApplicationIcon(sbn.packageName)
-                bitmap = AppUtil.drawableToBitmap(appIconDrawable)
-            } catch (_: Exception) {}
-        }
-
-        val postTime = if (sbn.postTime > 0) sbn.postTime else notif.`when`
-
-        return ProgressNotificationData(
-            key = sbn.key,
-            packageName = sbn.packageName,
-            progress = progressPct,
-            isIndeterminate = indeterminate,
-            icon = bitmap,
-            postTime = postTime,
-            title = extras.getCharSequence(Notification.EXTRA_TITLE)?.toString(),
-            text = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString(),
-            appName = try {
-                packageManager.getApplicationLabel(packageManager.getApplicationInfo(sbn.packageName, 0)).toString()
-            } catch (_: Exception) {
-                null
-            },
-            contentIntent = notif.contentIntent,
-        )
-    }
-
-    private val progressHandler = Handler(Looper.getMainLooper())
-    private val progressExecutor = java.util.concurrent.Executors.newSingleThreadExecutor()
-    private val progressRefreshRunnable =
-        Runnable {
-            progressExecutor.execute {
-                val data =
-                    try {
-                        extractLatestProgressNotification()
-                    } catch (e: Exception) {
-                        Log.e("NotificationListener", "Failed to extract progress notification", e)
-                        return@execute
-                    }
-                progressHandler.post { notifyProgressListeners(data) }
-            }
-        }
-
-    private fun scheduleProgressRefresh() {
-        progressHandler.removeCallbacks(progressRefreshRunnable)
-        progressHandler.postDelayed(progressRefreshRunnable, PROGRESS_REFRESH_DEBOUNCE_MS)
-    }
-
     private fun hasReadableExtras(sbn: StatusBarNotification): Boolean =
         try {
             sbn.notification.extras?.size()
@@ -1525,329 +1182,4 @@ class NotificationListener : NotificationListenerService() {
             null
         }
 
-    fun refreshProgressNow() = scheduleProgressRefresh()
-
-    fun extractLatestProgressNotification(): ProgressNotificationData? {
-        val active = (safeActiveNotifications() ?: return null).toList()
-        val progressNotifs = active.mapNotNull { sbn ->
-            if (sbn.packageName == packageName || isMediaNotification(sbn)) return@mapNotNull null
-            extractProgressNotification(sbn)
-        }
-        return progressNotifs.maxByOrNull { it.postTime }
-    }
-
-    fun isHeadsUpNotification(
-        sbn: StatusBarNotification,
-        rankingMap: RankingMap? = null,
-    ): Boolean {
-        if (sbn.isOngoing) return false
-        if (sbn.packageName == packageName) return false
-        if (isMediaNotification(sbn)) return false
-
-        val notif = sbn.notification
-        val isGroupSummary = (notif.flags and Notification.FLAG_GROUP_SUMMARY) != 0
-        if (isGroupSummary) return false
-
-        try {
-            val map = rankingMap ?: currentRanking
-            if (map != null) {
-                val ranking = Ranking()
-                if (map.getRanking(sbn.key, ranking)) {
-                    return ranking.importance >= android.app.NotificationManager.IMPORTANCE_DEFAULT
-                }
-            }
-            @Suppress("DEPRECATION")
-            return sbn.notification.priority >= Notification.PRIORITY_DEFAULT
-        } catch (e: Exception) {
-            android.util.Log.e("NotificationListener", "Error in isHeadsUpNotification", e)
-            return false
-        }
-    }
-
-    fun extractNotificationAlert(sbn: StatusBarNotification): ActiveNotificationAlert? {
-        val notif = sbn.notification ?: return null
-        val extras = notif.extras ?: return null
-
-        val rawTitle = extras.getCharSequence(Notification.EXTRA_TITLE)?.toString()?.trim()
-        val rawTitleBig = extras.getCharSequence(Notification.EXTRA_TITLE_BIG)?.toString()?.trim()
-        val title = when {
-            !rawTitle.isNullOrBlank() -> rawTitle
-            !rawTitleBig.isNullOrBlank() -> rawTitleBig
-            else -> return null
-        }
-
-        val subText = extras.getCharSequence(Notification.EXTRA_SUB_TEXT)?.toString()?.trim()
-        val summaryText = extras.getCharSequence(Notification.EXTRA_SUMMARY_TEXT)?.toString()?.trim()
-
-        var body: String? = null
-
-        val standardText = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString()?.trim()
-        if (!standardText.isNullOrBlank()) {
-            body = standardText
-        }
-
-
-        if (body.isNullOrBlank()) {
-            @Suppress("DEPRECATION")
-            val rawMessages = extras.getParcelableArray(Notification.EXTRA_MESSAGES)
-            if (!rawMessages.isNullOrEmpty()) {
-                val lastMsg = rawMessages.lastOrNull() as? Bundle
-                if (lastMsg != null) {
-                    val msgText = lastMsg.getCharSequence("text")?.toString()?.trim()
-                    val msgSender = lastMsg.getCharSequence("sender")?.toString()?.trim()
-                    if (!msgText.isNullOrBlank()) {
-                        body = if (!msgSender.isNullOrBlank() && !msgSender.equals("You", ignoreCase = true) && !msgSender.equals(title, ignoreCase = true)) {
-                            "$msgSender: $msgText"
-                        } else {
-                            msgText
-                        }
-                    }
-                }
-            }
-        }
-
-        if (body.isNullOrBlank()) {
-            body = extras.getCharSequence(Notification.EXTRA_BIG_TEXT)?.toString()?.trim()
-        }
-
-        if (body.isNullOrBlank()) {
-            val textLines = extras.getCharSequenceArray(Notification.EXTRA_TEXT_LINES)
-            if (!textLines.isNullOrEmpty()) {
-                body = textLines.filterNotNull().map { it.toString().trim() }.lastOrNull { it.isNotBlank() }
-            }
-        }
-
-        val textParts = mutableListOf<String>()
-
-        if (!rawTitleBig.isNullOrBlank() && !rawTitleBig.equals(title, ignoreCase = true)) {
-            textParts.add(rawTitleBig)
-        }
-
-        // if (!subText.isNullOrBlank() && !subText.equals(title, ignoreCase = true) && !subText.equals(rawTitleBig, ignoreCase = true)) {
-        //     textParts.add(subText)
-        // }
-
-        if (!body.isNullOrBlank()) {
-            if (!body.equals(title, ignoreCase = true) && !body.equals(rawTitleBig, ignoreCase = true)) {
-                textParts.add(body)
-            }
-        }
-
-        if (textParts.isEmpty() && !summaryText.isNullOrBlank() && !summaryText.equals(title, ignoreCase = true)) {
-            textParts.add(summaryText)
-        }
-
-        var text = textParts.joinToString("\n")
-
-        val appName = try {
-            val appInfo = packageManager.getApplicationInfo(sbn.packageName, 0)
-            packageManager.getApplicationLabel(appInfo).toString()
-        } catch (_: Exception) {
-            null
-        }
-
-        var senderName: String? = null
-        var personAvatar: Bitmap? = null
-
-        // In MessagingStyle notifications, EXTRA_MESSAGING_PERSON is the local user ("You").
-        // The actual incoming sender is in EXTRA_MESSAGES or EXTRA_CONVERSATION_TITLE / title.
-        @Suppress("DEPRECATION")
-        val messages = extras.getParcelableArray(Notification.EXTRA_MESSAGES)
-        if (!messages.isNullOrEmpty()) {
-            val lastMsg = messages.lastOrNull() as? Bundle
-            if (lastMsg != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    val senderPerson = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        lastMsg.getParcelable("sender_person", Person::class.java)
-                    } else {
-                        @Suppress("DEPRECATION")
-                        lastMsg.getParcelable<Person>("sender_person")
-                    }
-                    if (senderPerson != null) {
-                        if (!senderPerson.name.isNullOrBlank()) {
-                            val name = senderPerson.name.toString()
-                            if (!name.equals("You", ignoreCase = true)) {
-                                senderName = name
-                            }
-                        }
-                        val pIcon = senderPerson.icon
-                        if (pIcon != null) {
-                            try {
-                                val d = pIcon.loadDrawable(this)
-                                if (d != null) {
-                                    personAvatar = AppUtil.drawableToBitmap(d)
-                                }
-                            } catch (_: Exception) {}
-                        }
-                    }
-                }
-                if (senderName.isNullOrBlank()) {
-                    val senderCharSeq = lastMsg.getCharSequence("sender")?.toString()
-                    if (!senderCharSeq.isNullOrBlank() && !senderCharSeq.equals("You", ignoreCase = true)) {
-                        senderName = senderCharSeq
-                    }
-                }
-            }
-        }
-
-        if (senderName.isNullOrBlank()) {
-            val convTitle = extras.getCharSequence(Notification.EXTRA_CONVERSATION_TITLE)?.toString()
-            if (!convTitle.isNullOrBlank() && !convTitle.equals("You", ignoreCase = true)) {
-                senderName = convTitle
-            }
-        }
-
-        if (senderName.isNullOrBlank() && title.isNotBlank() && !title.equals("You", ignoreCase = true)) {
-            senderName = title
-        }
-
-        var appIcon: Bitmap? = null
-        try {
-            val appIconDrawable = packageManager.getApplicationIcon(sbn.packageName)
-            appIcon = AppUtil.drawableToBitmap(appIconDrawable)
-        } catch (_: Exception) {}
-
-        val EXTRA_CONVERSATION_ICON_KEY = "android.conversationIcon"
-        var conversationIcon: Bitmap? = null
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            try {
-                val icon = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    notif.extras.getParcelable(EXTRA_CONVERSATION_ICON_KEY, Icon::class.java)
-                } else {
-                    @Suppress("DEPRECATION")
-                    notif.extras.getParcelable<Icon>(EXTRA_CONVERSATION_ICON_KEY)
-                }
-                icon?.loadDrawable(this)?.let { conversationIcon = AppUtil.drawableToBitmap(it) }
-            } catch (_: Exception) {}
-        }
-        var largeIconBitmap: Bitmap? = null
-        try {
-            notif.getLargeIcon()?.loadDrawable(this)?.let { largeIconBitmap = AppUtil.drawableToBitmap(it) }
-        } catch (_: Exception) {}
-        val isGroupConversation = notif.extras.getBoolean(Notification.EXTRA_IS_GROUP_CONVERSATION)
-        val shortcutIcon = if (conversationIcon == null && personAvatar == null && largeIconBitmap == null) conversationShortcutIcon(sbn) else null
-        val chatIcon = (if (isGroupConversation) conversationIcon else null) ?: personAvatar ?: largeIconBitmap ?: conversationIcon ?: shortcutIcon
-
-        var bitmap: Bitmap? = personAvatar
-        if (bitmap == null) {
-            try {
-                val largeIcon = notif.getLargeIcon()
-                if (largeIcon != null) {
-                    val drawable = largeIcon.loadDrawable(this)
-                    if (drawable != null) {
-                        bitmap = AppUtil.drawableToBitmap(drawable)
-                    }
-                }
-            } catch (_: Exception) {}
-        }
-
-        if (bitmap == null) {
-            try {
-                val smallIcon = notif.smallIcon
-                if (smallIcon != null) {
-                    val drawable = smallIcon.loadDrawable(this)
-                    if (drawable != null) {
-                        bitmap = AppUtil.drawableToBitmap(drawable)
-                    }
-                }
-            } catch (_: Exception) {}
-        }
-
-        if (bitmap == null) {
-            bitmap = appIcon
-        }
-
-        var appColor: Int? = null
-        if (notif.color != 0 && notif.color != android.graphics.Color.TRANSPARENT) {
-            appColor = notif.color
-        } else if (bitmap != null) {
-            try {
-                val palette = androidx.palette.graphics.Palette.from(bitmap).generate()
-                val vibrant = palette.getVibrantColor(0)
-                val dominant = palette.getDominantColor(0)
-                if (vibrant != 0) {
-                    appColor = vibrant
-                } else if (dominant != 0) {
-                    appColor = dominant
-                }
-            } catch (_: Exception) {}
-        }
-
-        val actionList = mutableListOf<NotificationActionItem>()
-        val actions = notif.actions
-        if (actions != null) {
-            for (action in actions) {
-                val actionTitle = action.title?.toString()
-                if (!actionTitle.isNullOrBlank()) {
-                    val remoteInputs = action.remoteInputs
-                    val hasReply = !remoteInputs.isNullOrEmpty()
-                    actionList.add(
-                        NotificationActionItem(
-                            title = actionTitle,
-                            isQuickReply = hasReply,
-                            pendingIntent = action.actionIntent,
-                            remoteInputs = remoteInputs,
-                            actionKey = "${sbn.key}_${actionTitle}"
-                        )
-                    )
-                }
-            }
-        }
-
-        return ActiveNotificationAlert(
-            key = sbn.key,
-            packageName = sbn.packageName,
-            title = title,
-            text = text,
-            icon = bitmap,
-            contentIntent = notif.contentIntent,
-            appColor = appColor,
-            senderName = senderName,
-            appName = appName,
-            appIcon = appIcon,
-            actions = actionList,
-            chatIcon = chatIcon,
-        )
-    }
-
-    private fun conversationShortcutIcon(sbn: StatusBarNotification): Bitmap? {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return null
-        return try {
-            val ranking = Ranking()
-            if (!currentRanking.getRanking(sbn.key, ranking)) return null
-            val shortcut = ranking.conversationShortcutInfo ?: return null
-            val launcherApps = getSystemService(LauncherApps::class.java) ?: return null
-            launcherApps.getShortcutIconDrawable(shortcut, resources.displayMetrics.densityDpi)
-                ?.let { AppUtil.drawableToBitmap(it) }
-        } catch (_: Exception) {
-            null
-        }
-    }
-
-    fun performNotificationAction(
-        actionItem: NotificationActionItem,
-        replyText: String? = null
-    ): Boolean {
-        return try {
-            val pendingIntent = actionItem.pendingIntent ?: return false
-            if (actionItem.isQuickReply && !replyText.isNullOrBlank()) {
-                val remoteInputs = actionItem.remoteInputs
-                if (!remoteInputs.isNullOrEmpty()) {
-                    val intent = Intent()
-                    val results = Bundle()
-                    remoteInputs.forEach { ri ->
-                        results.putCharSequence(ri.resultKey, replyText)
-                    }
-                    android.app.RemoteInput.addResultsToIntent(remoteInputs, intent, results)
-                    pendingIntent.send(this, 0, intent)
-                    return true
-                }
-            }
-            pendingIntent.send()
-            true
-        } catch (e: Exception) {
-            Log.e("NotificationListener", "Error performing notification action: ${e.message}")
-            false
-        }
-    }
 }

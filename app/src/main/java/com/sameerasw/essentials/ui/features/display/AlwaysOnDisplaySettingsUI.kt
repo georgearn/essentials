@@ -121,17 +121,6 @@ fun AlwaysOnDisplaySettingsUI(
             )
 
             IconToggleItem(
-                iconRes = R.drawable.rounded_apps_24,
-                title = stringResource(R.string.notification_glance_same_as_lighting_title),
-                isChecked = viewModel.isNotificationGlanceSameAsLightingEnabled.value,
-                onCheckedChange = { checked ->
-                    HapticUtil.performVirtualKeyHaptic(view)
-                    viewModel.setNotificationGlanceSameAsLightingEnabled(checked)
-                },
-                modifier = Modifier.highlight(highlightSetting == "notification_glance_same_apps"),
-            )
-
-            IconToggleItem(
                 iconRes = R.drawable.rounded_power_settings_new_24,
                 title = stringResource(R.string.feat_aod_force_turn_off_title),
                 isChecked = viewModel.isAodForceTurnOffEnabled.value,
@@ -169,17 +158,15 @@ fun AlwaysOnDisplaySettingsUI(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
-        if (!viewModel.isNotificationGlanceSameAsLightingEnabled.value) {
-            Button(
-                onClick = {
-                    HapticUtil.performVirtualKeyHaptic(view)
-                    showAppSelectionSheet = true
-                },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = viewModel.isNotificationGlanceEnabled.value,
-            ) {
-                Text(stringResource(R.string.action_select_apps))
-            }
+        Button(
+            onClick = {
+                HapticUtil.performVirtualKeyHaptic(view)
+                showAppSelectionSheet = true
+            },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = viewModel.isNotificationGlanceEnabled.value,
+        ) {
+            Text(stringResource(R.string.action_select_apps))
         }
 
         Spacer(modifier = Modifier.height(80.dp))
